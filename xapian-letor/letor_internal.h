@@ -34,7 +34,7 @@ namespace Xapian {
 
 class Letor::Internal : public Xapian::Internal::intrusive_base {
     friend class Letor;
-    Xapian::Ranker ranker;
+    Ranker ranker;
     Database letor_db;
     Query letor_query;
 
