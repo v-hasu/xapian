@@ -17,10 +17,40 @@ using namespace std;
 FeatureManager::FeatureManager() {
 }
 
+
+std::string
+FeatureManager::getdid(const Document &doc) {
+    string id="";
+    string data = doc.get_data();
+    string temp_id = data.substr(data.find("url=", 0), (data.find("sample=", 0) - data.find("url=", 0)));
+    id = temp_id.substr(temp_id.rfind('/') + 1, (temp_id.rfind('.') - temp_id.rfind('/') - 1));  //to parse the actual document name associated with the         documents if any
+
+    return id;
+}
+
+int
+FeatureManager::getlabel(map<string, map<string, int> > qrel, const Document &doc) {
+    int label = -1;
+    string id = getdid(doc);    
+
+    map<string, map<string, int> >::iterator outerit;
+    map<string, int>::iterator innerit;
+
+    outerit = qrel.find(qid);
+    if (outerit != qrel.end()) {
+	innerit = outerit->second.find(id);
+	if (innerit != outerit->second.end()) {
+        label = innerit->second;
+	}
+    }
+    return label;
+}
+
 Xapian::RankList
 createRankList(const Xapian::MSet & mset, std::string & qid) {
+    Xapian::RankList rl;
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
-        Xapian::RankList rl;
+        
         Xapian::Document doc = i.get_document();
         
         // Here a weight vector can be created in future for different weights of the document 
@@ -42,7 +72,7 @@ createRankList(const Xapian::MSet & mset, std::string & qid) {
 }
 
 Xapian::FeatureVector
-createFeatureVector(map<int>,double> fvals, int &label, std::string & did) {
+createFeatureVector(map<int,double> fvals, int &label, std::string & did) {
     Xapian::FeatureVector fv;
     fv.set_did(did);
     fv.set_label(label);
@@ -82,43 +112,17 @@ FeatureManager::load_relevance(const std::string & qrel_file) {
     return qrel;
 }
 
-std::string
-FeatureManager::getdid(const Document &doc) {
-    string id="";
-    string data = doc.get_data();
-    string temp_id = data.substr(data.find("url=", 0), (data.find("sample=", 0) - data.find("url=", 0)));
-    id = temp_id.substr(temp_id.rfind('/') + 1, (temp_id.rfind('.') - temp_id.rfind('/') - 1));  //to parse the actual document name associated with the         documents if any
-
-    return id;
-}
-
-int
-FeatureManager::getlabel(map<string, map<string, int> > qrel, const Document &doc) {
-    int label = -1;
-    string id = getdid(doc);    
-
-    map<string, map<string, int> >::iterator outerit;
-    map<string, int>::iterator innerit;
-
-    outerit = qrel.find(qid);
-    if (outerit != qrel.end()) {
-	innerit = outerit->second.find(id);
-	if (innerit != outerit->second.end()) {
-        label = innerit->second;
-	}
-    }
-    return label;
-}
 
 
-void
+
+std::map<int,double>
 FeatureManager::transform(const Document &doc, double &weight)
 {
     map<int, double> fvals;
     map<string,long int> tf = termfreq(doc, letor_query);
     map<string, long int> doclen = doc_length(letor_db, doc);
 
-    double[] val = new double[fCount+1];
+    double val[20];// = new double[fCount+1];
 
     // storing the feature values from array index 1 to sync it with feature number.
     val[1]=calculate_f1(letor_query,tf,'t');
@@ -150,7 +154,7 @@ FeatureManager::transform(const Document &doc, double &weight)
     val[19]=weight;
 
     for(int i=0; i<=fCount;i++)
-        fvals.put(i,val[i]);
+        fvals.insert(pair<int,double>(i,val[i]));
 
     return fvals;
 }
