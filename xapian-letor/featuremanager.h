@@ -39,20 +39,10 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureManager {
 
 public:
 
+    Xapian::Features f;
+
     FeatureManager();
-
-    virtual ~FeatureManager() {};
-
-    // accessors
-    inline void set_database(const Database &db) { letor_db = db; update_collection_level();}
-    inline const Database &get_database() const { return letor_db; }
-    inline void set_query(const Query &query) { letor_query = query; update_query_level();}
-    inline const Query &get_query() const { return letor_query; }
-
-    // fill "dest" with the corresponding values NOTE: dest should have size NUM_FEATURES (vector safer?)
-    // TODO: the definition of this should be generated (or the whole class inherited from this one)
-//    void compute(const Document &doc, double *dest);
-
+    
     std::map<int,double> transform(const Document &doc, double &weight);
 
     Xapian::RankList createRankList(const Xapian::MSet & mset,std::string & qid);
@@ -66,6 +56,20 @@ public:
     int getlabel(map<string, map<string, int> > qrel, const Document &doc, std::string & qid);
 
     static const int fNum = 20;
+
+    virtual ~FeatureManager() {};
+
+    // accessors
+    inline void set_database(const Database &db) { letor_db = db; update_collection_level();}
+    inline const Database &get_database() const { return letor_db; }
+    inline void set_query(const Query &query) { letor_query = query; update_query_level();}
+    inline const Query &get_query() const { return letor_query; }
+
+    // fill "dest" with the corresponding values NOTE: dest should have size NUM_FEATURES (vector safer?)
+    // TODO: the definition of this should be generated (or the whole class inherited from this one)
+//    void compute(const Document &doc, double *dest);
+
+
 
 private:
     Database letor_db;
