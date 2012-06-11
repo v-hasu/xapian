@@ -71,7 +71,7 @@ noinst_HEADERS +=\
 	featuremanager.h\
 	letor_features.h\
 	ranklist.h\
-	ranker.h\
+	ranker.h
 
 lib_src +=\
 	letor.cc\
@@ -79,7 +79,7 @@ lib_src +=\
 	featurevector.cc\
 	featuremanager.cc\
 	letor_features.cc\
-	ranklist.cc\
+	ranklist.cc
 
 
 DISTCHECK_CONFIGURE_FLAGS = "XAPIAN_CONFIG=$(XAPIAN_CONFIG)"

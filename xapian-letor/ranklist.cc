@@ -11,7 +11,8 @@
 using namespace std;
 using namespace Xapian;
 
-Ranklist(const Xapian::MSet & mset,const Xapian::Database & db,const Xapian::Query & query)
+//Ranklist(const Xapian::MSet & mset,const Xapian::Database & db,const Xapian::Query & query)
+RankList()
 {
     /*map<Xapian::docid,double> letor_mset;
 
@@ -70,7 +71,7 @@ Ranklist(const Xapian::MSet & mset,const Xapian::Database & db,const Xapian::Que
 
 //Map3 normalise(Map3 norm,map< int, list<double> >::iterator norm_outer,list<double>::iterator norm_inner) {
 void
-normalise() {
+RankList::normalise() {
     
     /* this is the place where we have to normalize the norm and after that store it in the file. */
 
@@ -98,10 +99,11 @@ normalise() {
 }
 
 void
-add_feature_vector(const Xapian::FeatureVector fv) {
+RankList::add_feature_vector(const Xapian::FeatureVector fv) {
     rl.push_back(fv);
 }
 
-void set_qid(std::string qid) {
+void
+RankList::set_qid(std::string qid) {
     this->qid=qid;
 }
