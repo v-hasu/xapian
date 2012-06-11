@@ -51,6 +51,11 @@ using namespace std;
 
 using namespace Xapian;
 
+FeatureVector::FeatureVector() {
+}
+
+FeatureVector::FeatureVector(const FeatureVector & /*o*/) {
+}
 
 map<string, map<string, int> >
 FeatureVector::load_relevance(const std::string & qrel_file) {
