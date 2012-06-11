@@ -45,11 +45,11 @@ public:
     
     std::map<int,double> transform(const Document &doc, double &weight);
 
-    Xapian::RankList createRankList(const Xapian::MSet & mset,std::string & qid);
+    Xapian::RankList create_rank_list(const Xapian::MSet & mset,std::string & qid);
 
     map<string, map<string,int> > load_relevance(const std::string & qrel_file);    
     
-    Xapian::FeatureVector createFeatureVector(map<int,double> fvals, int &label, std::string & did);
+    Xapian::FeatureVector create_feature_vector(map<int,double> fvals, int &label, std::string & did);
     
     std::string getdid(const Document &doc);
     

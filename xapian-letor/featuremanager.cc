@@ -19,19 +19,6 @@ using namespace std;
 FeatureManager::FeatureManager() {
 }
 
-    std::map<int,double> transform(const Document &doc, double &weight);
-
-    Xapian::RankList createRankList(const Xapian::MSet & mset,std::string & qid);
-
-    map<string, map<string,int> > load_relevance(const std::string & qrel_file);    
-    
-    Xapian::FeatureVector createFeatureVector(map<int,double> fvals, int &label, std::string & did);
-    
-    std::string getdid(const Document &doc);
-    
-    int getlabel(map<string, map<string, int> > qrel, const Document &doc, std::string & qid);
-
-
 std::string
 FeatureManager::getdid(const Document &doc) {
     string id="";
@@ -61,7 +48,7 @@ FeatureManager::getlabel(map<string, map<string, int> > qrel2, const Document &d
 }
 
 Xapian::RankList
-createRankList(const Xapian::MSet & mset, std::string & qid) {
+create_rank_list(const Xapian::MSet & mset, std::string & qid) {
     Xapian::RankList rl;
 
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
@@ -87,7 +74,7 @@ createRankList(const Xapian::MSet & mset, std::string & qid) {
 }
 
 Xapian::FeatureVector
-createFeatureVector(map<int,double> fvals, int &label, std::string & did) {
+create_feature_vector(map<int,double> fvals, int &label, std::string & did) {
     Xapian::FeatureVector fv;
     fv.set_did(did);
     fv.set_label(label);
