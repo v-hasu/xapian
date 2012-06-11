@@ -202,12 +202,12 @@ try {
     enquire.set_query(query);
 
     Xapian::MSet mset = enquire.get_mset(0, msize);
-/*
+
     Xapian::TermIterator qt,qt_end,temp,temp_end,docterms,docterms_end;
     Xapian::PostingIterator p,pend;
 
-    /Xapian::Letor ltr;
-
+    Xapian::Letor ltr;
+/*
     ltr.set_database(db);
     ltr.set_query(query);
     ltr.create_ranker(0);
