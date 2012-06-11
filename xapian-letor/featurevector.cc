@@ -83,3 +83,11 @@ FeatureVector::load_relevance(const std::string & qrel_file) {
     return qrel;
 }
 
+void
+set_qid(const std::string & qid) {
+    
+}
+
+void set_did(const std::string & did) {
+}
+

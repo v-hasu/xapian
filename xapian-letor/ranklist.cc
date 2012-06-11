@@ -69,7 +69,8 @@ Ranklist(const Xapian::MSet & mset,const Xapian::Database & db,const Xapian::Que
 }
 
 //Map3 normalise(Map3 norm,map< int, list<double> >::iterator norm_outer,list<double>::iterator norm_inner) {
-Map3 normalise() {
+void
+normalise() {
     
     /* this is the place where we have to normalize the norm and after that store it in the file. */
 
@@ -102,5 +103,5 @@ add_feature_vector(const Xapian::FeatureVector fv) {
 }
 
 void set_qid(std::string qid) {
-    this.qid=qid;
+    this->qid=qid;
 }
