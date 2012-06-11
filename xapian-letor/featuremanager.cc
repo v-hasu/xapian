@@ -29,15 +29,15 @@ FeatureManager::getdid(const Document &doc) {
 }
 
 int
-FeatureManager::getlabel(map<string, map<string, int> > qrel, const Document &doc) {
+FeatureManager::getlabel(map<string, map<string, int> > qrel1, const Document &doc, std::string & qid) {
     int label = -1;
     string id = getdid(doc);    
 
     map<string, map<string, int> >::iterator outerit;
     map<string, int>::iterator innerit;
 
-    outerit = qrel.find(qid);
-    if (outerit != qrel.end()) {
+    outerit = qrel1.find(qid);
+    if (outerit != qrel1.end()) {
 	innerit = outerit->second.find(id);
 	if (innerit != outerit->second.end()) {
         label = innerit->second;
@@ -59,7 +59,7 @@ createRankList(const Xapian::MSet & mset, std::string & qid) {
 
         map<int,double> fVals = transform(doc, weight);
         string did = getdid(doc);
-        int label = getlabel(qrel, doc);
+        int label = getlabel(qrel, doc, qid);
 
         if(label!=-1) {
             Xapian::FeatureVector fv = createFeatureVector(fVals, label, did);

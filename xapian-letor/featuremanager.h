@@ -63,7 +63,7 @@ public:
     
     std::string getdid(const Document &doc);
     
-    int getlabel(map<string, map<string, int> > qrel, const Document &doc);
+    int getlabel(map<string, map<string, int> > qrel, const Document &doc, std::string & qid);
 
     static const int fNum = 20;
 
