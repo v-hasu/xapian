@@ -40,7 +40,7 @@ class Letor::Internal : public Xapian::Internal::intrusive_base {
 
   public:
 
-    map<Xapian::docid, double>  letor_score(const Xapian::MSet & mset);
+    std::map<Xapian::docid, double>  letor_score(const Xapian::MSet & mset);
 
     void letor_learn_model(int svm_type, int kernel_type);
 

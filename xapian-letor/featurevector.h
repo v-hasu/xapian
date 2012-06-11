@@ -38,14 +38,16 @@ using namespace std;
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
+
+  public:
+  
     double label;
     std::map<int,double> fvals;
     int fcount;
     string did;
 
-  public:
   
-   FeatureVector();
+    FeatureVector();
 
     FeatureVector(const FeatureVector & o);
     
@@ -62,10 +64,10 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
 
 //    void set_qid(const std::string & qid);
 
-    void set_did(const std::string & did);
+    void set_did(const std::string & did1);
     
-    void set_label(double label);
-    void set_fvals(map<int,double> fvals);
+    void set_label(double label1);
+    void set_fvals(map<int,double> fvals1);
     
 };
 
