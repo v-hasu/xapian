@@ -19,6 +19,18 @@ using namespace std;
 FeatureManager::FeatureManager() {
 }
 
+    std::map<int,double> transform(const Document &doc, double &weight);
+
+    Xapian::RankList createRankList(const Xapian::MSet & mset,std::string & qid);
+
+    map<string, map<string,int> > load_relevance(const std::string & qrel_file);    
+    
+    Xapian::FeatureVector createFeatureVector(map<int,double> fvals, int &label, std::string & did);
+    
+    std::string getdid(const Document &doc);
+    
+    int getlabel(map<string, map<string, int> > qrel, const Document &doc, std::string & qid);
+
 
 std::string
 FeatureManager::getdid(const Document &doc) {
