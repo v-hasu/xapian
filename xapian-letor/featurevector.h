@@ -41,6 +41,7 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
     double label;
     std::map<int,double> fvals;
     int fcount;
+    string did;
 
   public:
   
@@ -59,11 +60,11 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
 
     map<string, map<string, int> > load_relevance(const std::string & qrel_file);
 
-    void set_qid(const std::string & qid);
+//    void set_qid(const std::string & qid);
 
     void set_did(const std::string & did);
     
-    void set_label(int label);
+    void set_label(double label);
     void set_fvals(map<int,double> fvals);
     
 };

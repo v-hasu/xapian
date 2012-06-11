@@ -84,10 +84,18 @@ FeatureVector::load_relevance(const std::string & qrel_file) {
 }
 
 void
-set_qid(const std::string & qid) {
-    
+FeatureVector::set_did(const std::string & did) {
+    this->did=did;
 }
 
-void set_did(const std::string & did) {
+void
+FeatureVector::set_label(double label) {
+    this->label=label;
 }
+
+void
+FeatureVector::set_fvals(map<int,double> fvals) {
+    this->fvals=fvals;
+}
+
 
