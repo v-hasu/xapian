@@ -29,6 +29,7 @@
 
 #include <list>
 #include <map>
+#include <vector>
 
 using namespace std;
 
@@ -52,6 +53,22 @@ rank(const Xapian::RankList & rl) {
     }
 }
 
+static char* readline(FILE *input) {
+    int len;
+
+    if (fgets(line, max_line_len, input) == NULL)
+	return NULL;
+
+    while (strrchr(line, '\n') == NULL) {
+	max_line_len *= 2;
+	line = (char *)realloc(line, max_line_len);
+	len = (int)strlen(line);
+	if (fgets(line + len, max_line_len - len, input) == NULL)
+	    break;
+    }
+    return line;
+}
+
 void
 learn_model() {
     printf("Learning the model..");
@@ -62,6 +79,16 @@ learn_model() {
     input_file_name = get_cwd().append("/train.txt");
     model_file_name = get_cwd().append("/model.txt");
     
+    /* Read the training file into the format as required by the listmle_train() function
+     * with datastructure vector<vector<map<int,double>>>
+     */
+    read_problem(input_file_name.c_str());
+    ListMLE::params = listmle_train();
+    ListMLE::save_model();  
+}
+
+vector<double>
+listmle_train() {
     
 }
 

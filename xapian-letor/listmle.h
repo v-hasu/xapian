@@ -33,6 +33,7 @@
 
 #include <list>
 #include <map>
+#include <vector>
 
 using namespace std;
 
@@ -43,6 +44,10 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLE: public Ranker {
 
     string model = null;
     double[] weight;
+    vector<double> params;
+    double tolerance_rate;
+    double learning_rate;
+    
   public:
     ListMLE() {};
 
