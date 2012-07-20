@@ -71,16 +71,6 @@ inline int maxPosition( vector<double> & v){
 Xapian::RankList
 ListMLE::rank(Xapian::RankList rlist) {
 
-    /*std::map<int,double> fvals;
-    std::list<FeatureVector> fvlist = rl->rl;
-    std::list<FeatureVector>::const_iterator iterator;
-    
-    for (iterator = fvlist.begin(); iterator != fvlists.end(); ++iterator) {
-	//std::cout << *iterator;
-	fvals = iterator->fvals;
-	
-    }
-*/
     Xapian::RankList rl_out;
     std::vector<FeatureVector> local_rl = rlist.get_data();
     int num_fv = local_rl.size();
@@ -93,6 +83,7 @@ ListMLE::rank(Xapian::RankList rlist) {
     }
     local_rl= rl_out.sort_by_score();
     rl_out.set_rl(local_rl);
+    
     return rl_out;
 }
 
