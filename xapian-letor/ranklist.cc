@@ -7,6 +7,8 @@
 
 #include <list>
 #include <map>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 using namespace Xapian;
@@ -98,7 +100,7 @@ RankList::normalise() {
 
 void
 RankList::add_feature_vector(const Xapian::FeatureVector fv) {
-    rl.push_back(fv);
+    this->rl.push_back(fv);
 }
 
 void
@@ -106,7 +108,19 @@ RankList::set_qid(std::string qid1) {
     this->qid=qid1;
 }
 
+void
+RankList::set_rl(std::vector<FeatureVector> local_rl) {
+    this->rl=local_rl;
+}
+
 std::vector<FeatureVector> 
 RankList::get_data() {
     return this->rl;
+}
+
+std::vector<FeatureVector>
+RankList::sort_by_score() {
+    std::vector<FeatureVector> local_rl = this->rl;
+    sort(local_rl.begin(), local_rl.end(), FeatureVector::before);
+    return local_rl;
 }

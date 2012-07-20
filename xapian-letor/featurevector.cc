@@ -123,3 +123,7 @@ FeatureVector::get_feature_value(int index) {
 	return (*iter).second;
 }
 
+void
+FeatureVector::set_score(double score1) {
+    this->score=score1;
+}

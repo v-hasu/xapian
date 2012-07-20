@@ -57,6 +57,8 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
      * map<int,double>
      */
 
+    static bool before( const Xapian::FeatureVector& c1, const Xapian::FeatureVector& c2 ) { return c1.score < c2.score; }
+
     map<string, map<string, int> > load_relevance(const std::string & qrel_file);
 
     void set_did(const std::string & did1);
@@ -64,6 +66,7 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
     void set_label(double label1);
     void set_fvals(map<int,double> fvals1);
     double get_score();
+    void set_score(double score1);
     std::map<int,double> get_fvals();
     double get_feature_value(int index);
     

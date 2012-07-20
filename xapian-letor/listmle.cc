@@ -30,6 +30,7 @@
 
 #include "str.h"
 #include "stringutils.h"
+#include <string.h>
 
 #include <list>
 #include <string>
@@ -68,9 +69,9 @@ inline int maxPosition( vector<double> & v){
 }*/
 
 Xapian::RankList
-ListMLE::rank(const Xapian::RankList & rl) {
+ListMLE::rank(Xapian::RankList rlist) {
 
-/*    std::map<int,double> fvals;
+    /*std::map<int,double> fvals;
     std::list<FeatureVector> fvlist = rl->rl;
     std::list<FeatureVector>::const_iterator iterator;
     
@@ -80,7 +81,19 @@ ListMLE::rank(const Xapian::RankList & rl) {
 	
     }
 */
-    return rl;
+    Xapian::RankList rl_out;
+    std::vector<FeatureVector> local_rl = rlist.get_data();
+    int num_fv = local_rl.size();
+    double temp = 0.0;
+    for(int i=0; i<num_fv; ++i) {
+	FeatureVector fv_temp = local_rl[i];
+	temp = score_doc(fv_temp);
+	fv_temp.set_score(temp);
+	rl_out.add_feature_vector(fv_temp);
+    }
+    local_rl= rl_out.sort_by_score();
+    rl_out.set_rl(local_rl);
+    return rl_out;
 }
 
 /*static char* readline(FILE *input) {
@@ -115,7 +128,7 @@ ListMLE::learn_model() {
     vector<RankList> samples;
     //read_problem(input_file_name.c_str());
     ListMLE::parameters = listmle_train(samples);
-    //ListMLE::save_model(model_file_name);  
+    ListMLE::save_model(model_file_name);  
 }
 
 double
@@ -231,23 +244,41 @@ ListMLE::listmle_train(vector<RankList> & samples) {
 }
 
 void 
-ListMLE::load_model(const std::string & /*model_file*/) {
+ListMLE::load_model(const std::string & model_file_name) {
+    ifstream model_file;
+    model_file.open(model_file_name.c_str(),ios::in);
+    string str;
+    while(!model_file.eof()) {
+	getline(model_file,str);
+	if (str.empty())
+	    break;
+	parameters.push_back(atof(str.c_str())); 
+	str.clear();
+    }
+    model_file.close();
 }
 
 void 
-ListMLE::save_model() {
+ListMLE::save_model(const string & model_file_name) {
     ofstream train_file;
-    train_file.open("model.txt");
+    train_file.open(model_file_name.c_str());
     int num_param=parameters.size();
 
     for (int i=0; i<num_param; ++i)
-	train_file << parameters[i];
+	train_file << parameters[i]<<"\n";
     
     train_file.close();
 }
 
 double 
-ListMLE::score(const Xapian::FeatureVector & /*fv*/) {
-    return 0.0;
+ListMLE::score_doc(Xapian::FeatureVector fv) {
+    double score=0.0;
+    int num_param=parameters.size();
+    map<int,double> local_fvals = fv.get_fvals();
+    
+    for(int i=0; i<num_param; ++i)
+	score += (parameters[i]*local_fvals.find(i)->second);
+    
+    return score;
 }
 

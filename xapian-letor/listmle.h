@@ -58,18 +58,19 @@ class XAPIAN_VISIBILITY_DEFAULT ListMLE: public Ranker {
   public:
     ListMLE() {};
 
+
     /* Override all the four methods below in the ranker sub-classes files
      * wiz listmle.cc , listnet.cc, listmle.cc and so on
      */
-    Xapian::RankList rank(const Xapian::RankList & rl);
+    Xapian::RankList rank(const Xapian::RankList rlist);
 
     void learn_model();
 
-    void load_model(const std::string & model_file);
+    void load_model(const std::string & model_file_name);
 
-    void save_model();
+    void save_model(const std::string & model_file_name);
 
-    double score(const Xapian::FeatureVector &/* fv*/);
+    double score_doc(Xapian::FeatureVector fv);
     
     //vector<double> listmle_train(vector<instance> & instances, double tolerance_rate, double learning_rate);
     
