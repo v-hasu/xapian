@@ -41,7 +41,7 @@ class FeatureVector;
 
 class XAPIAN_VISIBILITY_DEFAULT RankList {
     
-    std::list<FeatureVector> rl;
+    std::vector<FeatureVector> rl;
 
   public:
     std::string qid;
@@ -52,6 +52,8 @@ class XAPIAN_VISIBILITY_DEFAULT RankList {
     void add_feature_vector(const Xapian::FeatureVector fv);//was & fv initially,check back later
 
     void normalise();
+    
+    std::vector<FeatureVector> get_data();
 
 };
 

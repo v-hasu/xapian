@@ -41,6 +41,7 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
   public:
   
     double label;
+    double score;
     std::map<int,double> fvals;
     int fcount;
     string did;
@@ -62,6 +63,9 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
     
     void set_label(double label1);
     void set_fvals(map<int,double> fvals1);
+    double get_score();
+    std::map<int,double> get_fvals();
+    double get_feature_value(int index);
     
 };
 

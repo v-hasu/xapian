@@ -105,3 +105,8 @@ void
 RankList::set_qid(std::string qid1) {
     this->qid=qid1;
 }
+
+std::vector<FeatureVector> 
+RankList::get_data() {
+    return this->rl;
+}
