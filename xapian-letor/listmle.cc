@@ -55,7 +55,7 @@ static string get_cwd() {
     return ( getcwd(temp, MAXPATHLENTH) ? std::string( temp ) : std::string() );
 }
 
-inline int maxPosition( vector<double> & v){
+inline int max_position( vector<double> & v){
 	int max = 0;
 	for (unsigned int i = 1; i < v.size(); i++){
 		if( v[i] > v[max])
@@ -132,106 +132,94 @@ ListMLE::absolute (double a) {
 
 vector<double>
 ListMLE::listmle_train(vector<RankList> & samples) {
-    vector<double> params;	//parameter vector
-    int max_index = 19;//number of features
-    //initialize 
-    for( int i = 0; i < max_index; i++)
-	params.push_back(0.0);
-
+    vector<double> param_list;
+    int max_index = 19;
     double preLoss = 0;
+    double curLoss = 0;
+    bool is_stop = false;
+
+    for( int i = 0; i < max_index; i++)
+	param_list.push_back(0.0);
     
-    //learns
     while(1) {
 	for(unsigned int i = 0; i < samples.size(); ++i) {
-	    std::vector<FeatureVector> pairs = samples[i].get_data();;
-	    int num_of_pairs = pairs.size();
-	    //vector scores
+	    std::vector<FeatureVector> feature_vector = samples[i].get_data();;
+	    int num_feature_vector = feature_vector.size();
 	    vector<double> scores;
-	    for(int j = 0; j < num_of_pairs; ++j)
-	        scores.push_back( pairs[j].get_score());
+	    for(int j = 0; j < num_feature_vector; ++j)
+	        scores.push_back( feature_vector[j].get_score());
 			
-	    int maxPos = maxPosition( scores);
-	    //calculates dot product
-	    vector<double> dotProducts;
-	    for(int j = 0; j < num_of_pairs; ++j) {
-		//dot product
+	    int max_pos = max_position( scores);
+	    vector<double> dot_prod;
+	    for(int j = 0; j < num_feature_vector; ++j) {
 		double product = 0;
 		map<int,double>::const_iterator iter;				
-		map<int,double> features = pairs[j].get_fvals();
-		for(iter = features.begin(); iter != features.end(); ++iter) {
-		    product += params[iter->first-1] * iter->second;
+		map<int,double> feature_set = feature_vector[j].get_fvals();
+		for(iter = feature_set.begin(); iter != feature_set.end(); ++iter) {
+		    product += param_list[iter->first-1] * iter->second;
 		}
-		dotProducts.push_back(product);
+		dot_prod.push_back(product);
 	    }
 	    
-	    //calculate total exp of predicted score
 	    double total_exp_of_predicted_score = 0;
-	    for(int j = 0; j < num_of_pairs; ++j) {
-		total_exp_of_predicted_score += exp( dotProducts[j]);
+	    for(int j = 0; j < num_feature_vector; ++j) {
+		total_exp_of_predicted_score += exp( dot_prod[j]);
 	    }
-	    //update params
+	    
 	    for(int k = 0; k < max_index; ++k) {
-		//calculate delta_param				
-		double delta_param = 0;
-		for(int j = 0; j < num_of_pairs; ++j) {
-		    if( pairs[j].get_feature_value(k+1) != 0)
-			delta_param += pairs[j].get_feature_value(k+1)*exp(dotProducts[j]);										
+		double delta_p = 0;
+		for(int j = 0; j < num_feature_vector; ++j) {
+		    if( feature_vector[j].get_feature_value(k+1) != 0)
+			delta_p += feature_vector[j].get_feature_value(k+1)*exp(dot_prod[j]);										
 		}
-		delta_param /= total_exp_of_predicted_score;
-		delta_param -= pairs[maxPos].get_feature_value( k+1);
-		//update
-		params[k] -= learning_rate * delta_param;
+		delta_p /= total_exp_of_predicted_score;
+		delta_p -= feature_vector[max_pos].get_feature_value( k+1);
+		param_list[k] -= learning_rate * delta_p;
 	    }	
 	}
-
-	//compute likelihood loss
-	double curLoss = 0;
-	bool isStop = false;
-	for(unsigned int i = 0; i < samples.size(); ++i) {
-	    vector<FeatureVector> pairs = samples[i].get_data();
-	    int num_of_pairs = pairs.size();
-	    //vector scores
-	    vector<double> scores;
-	    for(int j = 0; j < num_of_pairs; ++j)
-		scores.push_back( pairs[j].get_score());
 	
-	    int maxPos = maxPosition(scores);
-	    //calculates dot product
-	    vector<double> dotProducts;
-	    for(int j = 0; j < num_of_pairs; ++j) {
-		//dot product
+	curLoss = 0;
+	is_stop = false;
+	for(unsigned int i = 0; i < samples.size(); ++i) {
+	    vector<FeatureVector> feature_vector = samples[i].get_data();
+	    int num_feature_vector = feature_vector.size();
+	    vector<double> scores;
+	    for(int j = 0; j < num_feature_vector; ++j)
+		scores.push_back( feature_vector[j].get_score());
+	
+	    int max_pos = max_position(scores);
+	    vector<double> dot_prod;
+	    for(int j = 0; j < num_feature_vector; ++j) {
 		double product = 0;
 		map<int,double>::const_iterator iter;				
-		map<int,double> features = pairs[j].get_fvals();
+		map<int,double> feature_set = feature_vector[j].get_fvals();
 		
-		for(iter = features.begin(); iter != features.end(); ++iter) {
-		    product += params[iter->first-1] * iter->second;
+		for(iter = feature_set.begin(); iter != feature_set.end(); ++iter) {
+		    product += param_list[iter->first-1] * iter->second;
 	        }
-		dotProducts.push_back(product);
+		dot_prod.push_back(product);
 	    }
-	    //calculate total exp of predicted score
 	    double total_exp_of_predicted_score = 0;
-	    for(int j = 0; j < num_of_pairs; ++j) {
-		total_exp_of_predicted_score += exp( dotProducts[j]);
+	    for(int j = 0; j < num_feature_vector; ++j) {
+		total_exp_of_predicted_score += exp( dot_prod[j]);
 	    }
 	    
 	    curLoss += log( total_exp_of_predicted_score);
-	    curLoss -= dotProducts[maxPos];
+	    curLoss -= dot_prod[max_pos];
         }
         
         cout<<"Tolerance rate: "<<absolute( curLoss - preLoss)<<endl;
         if( absolute(curLoss - preLoss) < tolerance_rate) {
-	    isStop = true;
+	    is_stop = true;
     	    break;
         }
 	else
 	    preLoss = curLoss;
-	
-	//break while
-	if( isStop)
+	    
+	if( is_stop)
 	    break;
     }
-    return params;
+    return param_list;
 }
 
 void 
