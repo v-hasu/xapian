@@ -68,7 +68,7 @@ inline int max_position( vector<double> & v){
 /*ListMLE::ListMLE() {
 }*/
 
-Xapian::RankList
+Xapian::RankList // returns a SORTED ranklist (sorted by the score of each document)
 ListMLE::rank(Xapian::RankList rlist) {
 
     Xapian::RankList rl_out;
