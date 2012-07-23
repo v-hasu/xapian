@@ -130,7 +130,7 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
     
     std::vector<double> scores = ranker.rank(rlist);
     
-    /*code to convert list<double> scores to map<docid,double>*/
+    /*Converting list<double> scores to map<docid,double> letor_mset*/
     int num_fv = scores.size();
     for(int i=0; i<num_fv; ++i) {
 	//Xapian::docid did = (Xapian::docid) rlist.rl[i].did;//need to convert did from string to Xapian::docid
@@ -170,7 +170,6 @@ static void read_problem(const char *filename) {
 
     prob.l = 0;
     elements = 0;
-
     max_line_len = 1024;
     line = Malloc(char, max_line_len);
 
@@ -314,12 +313,12 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 
     Xapian::FeatureManager fm;
     fm.set_database(letor_db);
-    fm.load_relevance(qrel_file);
+    fm.load_relevance(qrel_file);//WHY???
     qrel = fm.load_relevance(qrel_file);
 
-    list<Xapian::RankList> l;
+    list<Xapian::RankList> list_rlist;
 
-    string str1;   
+    string str1;
     ifstream myfile1;
     myfile1.open(queryfile.c_str(), ios::in);
 
@@ -364,9 +363,9 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 	fm.set_query(query);
 
 	Xapian::RankList rl = fm.create_rank_list(mset, qid);
-	l.push_back(rl);
+	list_rlist.push_back(rl);
     }//while closed
     myfile1.close();
-    write_to_file(l);
+    write_to_file(list_rlist);
 //    train_file.close();
 }
