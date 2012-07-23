@@ -63,8 +63,8 @@ Letor::letor_score(const Xapian::MSet & mset) {
 }
 
 void
-Letor::letor_learn_model(int s, int k) {
-    internal->letor_learn_model(s, k);
+Letor::letor_learn_model() {
+    internal->letor_learn_model();
 }
 
 void
