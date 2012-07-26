@@ -188,6 +188,8 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      */
     void prepare_training_file(const std::string & query_file, const std::string & qrel_file, Xapian::doccount msetsize);
     
+    void prepare_training_file_listwise(const std::string & query_file, int num_features);
+    
     void create_ranker(int ranker_type);
 };
 

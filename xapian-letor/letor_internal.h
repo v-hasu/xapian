@@ -45,6 +45,8 @@ class Letor::Internal : public Xapian::Internal::intrusive_base {
     void letor_learn_model();
 
     void prepare_training_file(const std::string & query_file, const std::string & qrel_file, Xapian::doccount msetsize);
+    
+    void prepare_training_file_listwise(const std::string & query_file, int num_features);
 
 
 };

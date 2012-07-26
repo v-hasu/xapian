@@ -25,6 +25,7 @@
 #include "letor_internal.h"
 #include "ranker.h"
 #include "svmranker.h"
+#include "listmle.h"
 
 #include <map>
 #include <string>
@@ -73,11 +74,16 @@ Letor::prepare_training_file(const string & query_file, const string & qrel_file
 }
 
 void
+Letor::prepare_training_file_listwise(const string & query_file, int num_features) {
+    internal->prepare_training_file_listwise(query_file, num_features);
+}
+
+void
 Letor::create_ranker(int ranker_type) {
     switch(ranker_type) {
         case 0: internal->ranker = * new SVMRanker;
                 break;
-        case 1: //internal->ranker = * new ListMLE;
+        case 1: internal->ranker = * new ListMLE;
 		break;
         default: ;//cout<<"Please specify proper ranker.";
     }

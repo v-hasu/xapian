@@ -285,6 +285,10 @@ write_to_file(std::list<Xapian::RankList> l) {
 }
 
 void
+Letor::Internal::prepare_training_file_listwise(const string & /*queryfile*/, int /*num_features*/) {
+}
+
+void
 Letor::Internal::prepare_training_file(const string & queryfile, const string & qrel_file, Xapian::doccount msetsize) {
 
 //    ofstream train_file;
