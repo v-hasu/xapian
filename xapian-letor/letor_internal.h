@@ -37,6 +37,7 @@ class Letor::Internal : public Xapian::Internal::intrusive_base {
     Ranker ranker;
     Database letor_db;
     Query letor_query;
+    //vector<Xapian::RankList> samples;
 
   public:
 
@@ -47,6 +48,8 @@ class Letor::Internal : public Xapian::Internal::intrusive_base {
     void prepare_training_file(const std::string & query_file, const std::string & qrel_file, Xapian::doccount msetsize);
     
     void prepare_training_file_listwise(const std::string & query_file, int num_features);
+    
+    vector<Xapian::RankList> load_list_ranklist(const char *filename);
 
 
 };

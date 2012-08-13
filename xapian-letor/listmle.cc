@@ -106,7 +106,7 @@ ListMLE::rank(Xapian::RankList rlist) {
 void
 ListMLE::learn_model() {
     printf("Learning the model..");
-    string input_file_name;
+    //string input_file_name;
     string model_file_name;
     //const char *error_msg;
 
@@ -116,7 +116,7 @@ ListMLE::learn_model() {
     /* Read the training file into the format as required by the listmle_train() function
      * with datastructure vector<vector<map<int,double>>>
      */
-    vector<Xapian::RankList> samples; //all the RankLists from the training file need to be passed onto the listmle_train function
+    vector<Xapian::RankList> samples = this->training_data; //all the RankLists from the training file need to be passed onto the listmle_train function
     //read_problem(input_file_name.c_str());
     ListMLE::parameters = listmle_train(samples);
     ListMLE::save_model(model_file_name);  
@@ -128,6 +128,11 @@ absolute (double a) {
         return (-a);
     else
         return a;
+}
+
+void
+ListMLE::set_training_data(vector<Xapian::RankList> training_data1) {
+    this->training_data = training_data1;
 }
 
 vector<double>
