@@ -1,5 +1,5 @@
 #include <xapian.h>
-#include <xapian/base.h>
+//#include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
