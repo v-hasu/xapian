@@ -26,8 +26,8 @@
 #include "ranker.h"
 #include "svmranker.h"
 #include "listmle.h"
-#include "ranklist.h"
 
+#include <vector>
 #include <map>
 #include <string>
 
@@ -82,10 +82,11 @@ Letor::prepare_training_file_listwise(const string & query_file, int num_feature
 void
 Letor::create_ranker(int ranker_type) {
     switch(ranker_type) {
-        case 0: internal->ranker = * new SVMRanker;
+        case 0: internal->ranker = new SVMRanker;//internal->ranker = * new SVMRanker;
+                cout << "SVMRanker created!" <<endl;
                 break;
-        case 1: internal->ranker = * new ListMLE;
-		break;
+        case 1: internal->ranker = new ListMLE;//internal->ranker = * new ListMLE;
+                break;
         default: ;//cout<<"Please specify proper ranker.";
     }
 }
