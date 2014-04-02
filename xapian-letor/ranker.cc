@@ -19,7 +19,7 @@
  */
  
 #include <xapian.h>
-//#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>           //#include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
@@ -47,26 +47,35 @@ Ranker::Ranker() {
      * wiz svmranker.cc , listnet.cc, listmle.cc and so on
      */
 //std::list<double>
+
+std::vector<Xapian::RankList> 
+Ranker::get_traindata(){
+    return this->traindata;
+}
+
 std::vector<double>
-Ranker::rank(const Xapian::RankList & /*rl*/) {
-    std::vector<double> res;
+Ranker::rank(Xapian::RankList & rl) {
+/*    std::vector<double> res;
     Xapian::ListMLE listmle;
 
     double d=1.0;
     res.push_back(d);
-    return res;
+    return res;*/
 }
 
 void
 Ranker::learn_model() {
+    //cout << "ATTENTION! Using th base class Ranker, No Ranker created!" <<endl;
 }
 
 void
-Ranker::load_model(const std::string & /*model_file*/) {
+Ranker::load_model(const std::string & model_file) {
 }
 
 void
-Ranker::set_training_data(vector<Xapian::RankList> /*training_data1*/) {
+Ranker::set_training_data(vector<Xapian::RankList> training_data1) {
+    this->traindata = training_data1;
+    //cout << "set training data OK"<<endl;
 }
 
 void
