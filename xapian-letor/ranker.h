@@ -23,7 +23,7 @@
 
 
 #include <xapian.h>
-//#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>           //#include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
@@ -41,25 +41,28 @@ using namespace std;
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT Ranker {
-
-
-    std::list<Xapian::RankList> traindata;
+    
+    //std::list<Xapian::RankList> traindata;
     std::list<Xapian::RankList> validata;
     std::list<Xapian::RankList> testdata;
+
+    std::vector<Xapian::RankList> traindata;
 
     Xapian::EvalMetric trainMetric;
     Xapian::EvalMetric testMetric;
   public:
     Ranker();
 
+    std::vector<Xapian::RankList> get_traindata();
+
     /* Override all the four methods below in the ranker sub-classes files
      * wiz svmranker.cc , listnet.cc, listmle.cc and so on
      */
-    std::vector<double> rank(const Xapian::RankList & rl);
+    virtual std::vector<double> rank( Xapian::RankList & rl);
     
     void set_training_data(vector<Xapian::RankList> training_data1);
 
-    void learn_model();
+    virtual void learn_model();
 
     void load_model(const std::string & model_file);
 
