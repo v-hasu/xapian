@@ -54,8 +54,12 @@ using namespace Xapian;
 FeatureVector::FeatureVector() {
 }
 
-FeatureVector::FeatureVector(const FeatureVector & /*o*/) {
-
+FeatureVector::FeatureVector(const FeatureVector & o) {
+    this->label = o.label;
+    this->score = o.score;
+    this->fcount = 20;//hard code definition in Xapian::FeatureManager::transform, could be optimized later 
+    this->fvals = o.fvals;
+    this->did = o.did;
 }
 
 map<string, map<string, int> >
@@ -89,8 +93,18 @@ FeatureVector::load_relevance(const std::string & qrel_file) {
 }
 
 void
-FeatureVector::set_did(const std::string & did1) {
+FeatureVector::set_did(const Xapian::docid & did1) {
     this->did=did1;
+}
+
+void 
+FeatureVector::set_fcount(int fcount1) {
+    this->fcount=fcount1;
+}
+
+void
+FeatureVector::set_feature_value(int index, double value) {
+    this->fvals[index] = value;
 }
 
 void
@@ -99,7 +113,7 @@ FeatureVector::set_label(double label1) {
 }
 
 void
-FeatureVector::set_fvals(map<int,double> fvals1) {
+FeatureVector::set_fvals(map<int,double> & fvals1) {
     this->fvals=fvals1;
 }
 
@@ -108,9 +122,19 @@ FeatureVector::get_score() {
     return this->score;
 }
 
+double
+FeatureVector::get_label() {
+    return this->label;
+}
+
 std::map<int,double>
 FeatureVector::get_fvals() {
     return this->fvals;
+}
+
+Xapian::docid
+FeatureVector::get_did() {
+    return this->did;
 }
 
 double
@@ -126,4 +150,18 @@ FeatureVector::get_feature_value(int index) {
 void
 FeatureVector::set_score(double score1) {
     this->score=score1;
+}
+
+int
+FeatureVector::get_nonzero_num(){
+    int nonzero = 0;
+    int fvalsize=this->fvals.size();
+    for(int i = 1; i <= fvalsize; ++i){
+        if(fvals[i] != 0){
+            //cout << "index: "<< i << "fvals in fv: " <<fvals[i]<< endl;
+            nonzero++;
+        } 
+    }
+    //cout << "nonzero: "<< nonzero <<endl;
+    return nonzero;
 }
