@@ -28,7 +28,6 @@
 
 using namespace std;
 
-
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT Features {
@@ -55,8 +54,6 @@ class XAPIAN_VISIBILITY_DEFAULT Features {
     double calculate_f5(const Xapian::Query & query, map<string,long int> & tf, map<string,double> & idf, map<string,long int> & doc_length,char ch);
 
     double calculate_f6(const Xapian::Query & query, map<string,long int> & tf, map<string,long int> & doc_length,map<string,long int> & coll_tf, map<string,long int> & coll_length, char ch);
-
-
 
 };
 
