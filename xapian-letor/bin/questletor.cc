@@ -49,7 +49,8 @@ typedef std::pair<Xapian::docid, double> MyPair;
 
 struct MyTestCompare {
     bool operator()(const MyPair& firstPair, const MyPair& secondPair) const {
-	return firstPair.second < secondPair.second;
+	//return firstPair.second < secondPair.second;
+    	return firstPair.second > secondPair.second;
     }
 };
 
@@ -155,7 +156,7 @@ try {
 	}
     }
 
-    if (argc - optind != 1) {
+    if (argc - optind != 1) {//if no query, then quit
 	show_usage();
 	exit(1);
     }
@@ -182,11 +183,12 @@ try {
 	temp.append(qq);
 	qq=temp;
     }
-    cout << "Final Query " << qq << "\n";
+    cout << "Final Query: " << qq << "\n";
 
     Xapian::Query query = parser.parse_query(qq,
 					     parser.FLAG_DEFAULT|
 					     parser.FLAG_SPELLING_CORRECTION);
+    
     const string & correction = parser.get_corrected_query_string();
     if (!correction.empty())
 	cout << "Did you mean: " << correction << "\n\n";
@@ -201,7 +203,18 @@ try {
     Xapian::Enquire enquire(db);
     enquire.set_query(query);
 
-    Xapian::MSet mset = enquire.get_mset(0, msize);
+    //Xapian::doccount check_at_least = 0;
+
+    Xapian::MSet mset = enquire.get_mset(0, msize);//, check_at_least);
+    //cout << "the original size of mest return from the db: "<< mset.size() << endl;
+    /*cout << "MSet:" << endl;
+
+    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
+		Xapian::Document doc = i.get_document();
+		string data = doc.get_data();
+		cout << *i << ": [" << i.get_weight() << "]\n" << data << "\n";
+    }
+    */
 
     Xapian::TermIterator qt,qt_end,temp,temp_end,docterms,docterms_end;
     Xapian::PostingIterator p,pend;
@@ -210,15 +223,29 @@ try {
 
     ltr.set_database(db);
     ltr.set_query(query);
-    ltr.create_ranker(1);
+    ltr.create_ranker(0);
+    
+    //if train.txt exist, then delete
+    ltr.prepare_training_file("./bin/random.query","./bin/random.qrels",100);
 
-    ltr.prepare_training_file("/home/encoder/gsoc/inex/topics.txt.short","/home/encoder/gsoc/inex/2010-assessments/inex2010-article.qrels",100);
     //int num_features = 40;
     //ltr.prepare_training_file_listwise("filename",num_features);
 
     //ltr.letor_learn_model(4,0);
+
     ltr.letor_learn_model();
+
     map<Xapian::docid,double> letor_mset = ltr.letor_score(mset);
+
+    /*
+    if(letor_mset.size()==0){
+    	cout << "****************************************" <<endl;
+    	cout << "final map is empty!!!";
+    }
+    else{
+    	cout << "****************************************" <<endl;
+    	cout << "the size of the letor_map is: " << letor_mset.size() <<endl;
+    }*/
 
     set<MyPair,MyTestCompare> s;
     map<Xapian::docid, double>::iterator iter = letor_mset.begin();
@@ -230,13 +257,12 @@ try {
 
     set<MyPair,MyTestCompare>::iterator it;
 
-    int rank=1;
+    int rank=0;
     for (it = s.end(); it != s.begin(); it--) {
-	cout << "Item: " << rank << "\t" << (*it).second << "\n";
-
-	Xapian::Document doc = db.get_document((*it).first);
-	cout << doc.get_data() << "\n";
-	rank++;
+		cout << "Item: " << rank << "\t" << (*it).second << "\n";
+		Xapian::Document doc = db.get_document((*it).first);
+		cout << doc.get_data() << "\n";
+		rank++;
     }
 
     cout << flush;
@@ -247,6 +273,3 @@ try {
     cout << err.get_description() << endl;
     exit(1);
 }
-
-
-
