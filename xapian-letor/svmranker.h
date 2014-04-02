@@ -23,7 +23,7 @@
 
 
 #include <xapian.h>
-//#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>           //#include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
@@ -34,23 +34,24 @@
 
 #include <list>
 #include <map>
+#include <libsvm/svm.h>
 
 using namespace std;
-
 
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT SVMRanker: public Ranker {
 
-    string model;
-    double weight[];
+    struct svm_model *model;
+    //string model;
+    //double weight[];
   public:
-    SVMRanker() {};
+    SVMRanker();
 
     /* Override all the four methods below in the ranker sub-classes files
      * wiz svmranker.cc , listnet.cc, listmle.cc and so on
      */
-    std::list<double> rank(const Xapian::RankList & rl);
+    vector<double> rank(Xapian::RankList & rl);
 
     void learn_model();
 
