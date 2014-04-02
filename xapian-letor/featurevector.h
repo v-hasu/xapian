@@ -21,7 +21,6 @@
 #ifndef FEATURE_VECTOR_H
 #define FEATURE_VECTOR_H
 
-
 #include <xapian.h>
 //#include <xapian/base.h>
 #include <xapian/types.h>
@@ -40,11 +39,11 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
 
   public:
   
-    double label;
-    double score;
-    std::map<int,double> fvals;
-    int fcount;
-    string did;
+    double label;       //Correlation label, do we really need double here?
+    double score;       //no definition
+    std::map<int,double> fvals; //store the values of features, we could use a vector instead of map?
+    int fcount;         //feature number, now default is 19+1(the array start from 1, not 0)=20
+    Xapian::docid did;         //Docid
 
     FeatureVector();
 
@@ -61,14 +60,18 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
 
     map<string, map<string, int> > load_relevance(const std::string & qrel_file);
 
-    void set_did(const std::string & did1);
-    
+    void set_did(const Xapian::docid & did1);
+    void set_fcount(int fcount1);
     void set_label(double label1);
-    void set_fvals(map<int,double> fvals1);
-    double get_score();
+    void set_fvals(map<int,double> & fvals1);
     void set_score(double score1);
+    void set_feature_value(int index, double value);
+    double get_score();
+    double get_label();
+    Xapian::docid get_did();
     std::map<int,double> get_fvals();
     double get_feature_value(int index);
+    int get_nonzero_num();
     
 };
 
