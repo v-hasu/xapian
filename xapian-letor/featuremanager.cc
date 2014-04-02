@@ -5,10 +5,9 @@
 #include <cstring>
 #include <cstdlib>
 #include <fstream>
+#include <iostream>
 
 #include <map>
-
-
 
 using namespace Xapian;
 
@@ -33,6 +32,7 @@ int
 FeatureManager::get_label(map<string, map<string, int> > qrel2, const Document &doc, std::string & qid) {
     int label = -1;
     string id = get_did(doc);    
+    //cout << id << "and " << qid << endl;
 
     map<string, map<string, int> >::iterator outerit;
     map<string, int>::iterator innerit;
@@ -48,34 +48,45 @@ FeatureManager::get_label(map<string, map<string, int> > qrel2, const Document &
 }
 
 Xapian::RankList
-FeatureManager::create_rank_list(const Xapian::MSet & mset, std::string & qid) {
+FeatureManager::create_rank_list(const Xapian::MSet & mset, std::string & qid, int TrainorTest ) {//1 for train and 0 for test
     Xapian::RankList rlist;
+    rlist.set_qid(qid);
+    //no set_fvv
 
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
         
         Xapian::Document doc = i.get_document();
+        //::docid docid = doc.get_docid();
+        //cout<< "docid:" << docid << endl;
         
         // Here a weight vector can be created in future for different weights of the document 
         // like BM25, LM etc. 
         double weight = i.get_weight();
 
         map<int,double> fVals = transform(doc, weight);
-        string did = get_did(doc);
+        //string did = get_did(doc);
+        Xapian::docid did = doc.get_docid();
         int label = get_label(qrel, doc, qid);
 
-        if(label!=-1) {
-            Xapian::FeatureVector fv = create_feature_vector(fVals, label, did);
-            rlist.set_qid(qid);
-            rlist.add_feature_vector(fv);
+        if (TrainorTest==1 && label==-1){
+            continue;
         }
+        Xapian::FeatureVector fv = create_feature_vector(fVals, label, did);
+        //rlist.set_qid(qid);
+        rlist.add_feature_vector(fv);
+
     }
+
+    //ATTENTION!!~
+    //ToDo:
+    //if the rlist is null(all the label is -1), need to thrown a exception!!!
     std::vector<FeatureVector> normalized_rl = rlist.normalise();
-    rlist.set_rl(normalized_rl);//coz i wasn't sure whether the changes will be reflected back from the normalize function.
+    rlist.set_fvv(normalized_rl);//coz i wasn't sure whether the changes will be reflected back from the normalize function.
     return rlist;
 }
 
 Xapian::FeatureVector
-FeatureManager::create_feature_vector(map<int,double> fvals, int &label, std::string & did) {
+FeatureManager::create_feature_vector(map<int,double> fvals, int &label, Xapian::docid & did) {
     Xapian::FeatureVector fv;
     fv.set_did(did);
     fv.set_label(label);
@@ -84,6 +95,7 @@ FeatureManager::create_feature_vector(map<int,double> fvals, int &label, std::st
     return fv;
 }
 
+//could turn the type into void
 map<string, map<string,int> >
 FeatureManager::load_relevance(const std::string & qrel_file) {
     typedef map<string, int> Map1;      //docid and relevance judjement 0/1
@@ -91,7 +103,10 @@ FeatureManager::load_relevance(const std::string & qrel_file) {
     Map2 qrel1;
 
     string inLine;
-    ifstream myfile (qrel_file.c_str(), ifstream::in);
+    ifstream myfile (qrel_file.c_str(), ios::in);
+    if(!myfile.good()){
+        cout << "No Qrel file found" << endl;
+    }
     string token[4];
     if (myfile.is_open()) {
     while (myfile.good()) {
@@ -112,6 +127,7 @@ FeatureManager::load_relevance(const std::string & qrel_file) {
     }
     myfile.close();
     }
+    this->qrel = qrel1;
     return qrel1;
 }
 
@@ -151,6 +167,8 @@ FeatureManager::transform(const Document &doc, double &weight)
     val[16]=f.calculate_f6(letor_query,tf,doclen,coll_tf,coll_len,'t');
     val[17]=f.calculate_f6(letor_query,tf,doclen,coll_tf,coll_len,'b');
     val[18]=f.calculate_f6(letor_query,tf,doclen,coll_tf,coll_len,'w');
+
+    //cout<<"val[1]"<<val[1]<<"val[2]"<<val[2]<<"val[3]"<<val[3]<<"val[4]"<<val[4]<<"val[5]"<<val[5]<<"val[6]"<<val[6]<<endl;
 
 // this weight can be either set on the outside how it is done right now
 // or, better, extend Enquiry to support advanced ranking models
