@@ -1,5 +1,5 @@
 #include <xapian.h>
-//#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>           //#include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
@@ -74,7 +74,7 @@ RankList::RankList()
 std::vector<FeatureVector>
 RankList::normalise() {
 
-    std::vector<FeatureVector> local_rl = this->rl;
+    std::vector<FeatureVector> local_fvv = this->fvv;
     
     // find the max value for each feature gpr all the FeatureVectors in the RankList rl.
     int num_features = 19;
@@ -84,11 +84,11 @@ RankList::normalise() {
     for(int i=0; i<19; ++i)
 	max[i] = 0.0;
     
-    int num_fv = local_rl.size();
+    int num_fv = local_fvv.size();
     for(int i=0; i < num_fv; ++i) {
 	for(int j=0; j<19; ++j) {
-	    if(max[j] < local_rl[i].fvals.find(j)->second)
-		max[j] = local_rl[i].fvals.find(j)->second;
+	    if(max[j] < local_fvv[i].fvals.find(j)->second)
+		max[j] = local_fvv[i].fvals.find(j)->second;
 	}
     }
     
@@ -98,19 +98,19 @@ RankList::normalise() {
     
     for(int i=0; i < num_fv; ++i) {
 	for(int j=0; j<19; ++j) {
-	    temp = local_rl[i].fvals.find(j)->second;
+	    temp = local_fvv[i].fvals.find(j)->second;
 	    temp /= max[j];
-	    local_rl[i].fvals.insert(pair<int,double>(j,temp));
+	    local_fvv[i].fvals.insert(pair<int,double>(j,temp));
 	    temp = 0.9;
 	}
     }
     
-    return local_rl;
+    return local_fvv;
 }
 
 void
-RankList::add_feature_vector(const Xapian::FeatureVector fv) {
-    this->rl.push_back(fv);
+RankList::add_feature_vector(const Xapian::FeatureVector fv1) {
+    this->fvv.push_back(fv1);
 }
 
 void
@@ -118,19 +118,24 @@ RankList::set_qid(std::string qid1) {
     this->qid=qid1;
 }
 
+std::string
+RankList::get_qid(){
+	return this->qid;
+}
+
 void
-RankList::set_rl(std::vector<FeatureVector> local_rl) {
-    this->rl=local_rl;
+RankList::set_fvv(std::vector<FeatureVector> & local_fvv) {
+    this->fvv=local_fvv;
 }
 
 std::vector<FeatureVector> 
 RankList::get_data() {
-    return this->rl;
+    return this->fvv;
 }
 
 std::vector<FeatureVector>
 RankList::sort_by_score() {
-    std::vector<FeatureVector> local_rl = this->rl;
-    sort(local_rl.begin(), local_rl.end(), FeatureVector::before);
-    return local_rl;
+    std::vector<FeatureVector> local_fvv = this->fvv;
+    sort(local_fvv.begin(), local_fvv.end(), FeatureVector::before);
+    return local_fvv;
 }
