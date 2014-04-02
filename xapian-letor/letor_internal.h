@@ -33,7 +33,7 @@ namespace Xapian {
 
 class Letor::Internal : public Xapian::Internal::intrusive_base {
     friend class Letor;
-    Ranker ranker;
+    Ranker * ranker;
     Database letor_db;
     Query letor_query;
     //vector<Xapian::RankList> samples;
@@ -67,6 +67,7 @@ class Letor::Internal : public Xapian::Internal::intrusive_base {
 
     void letor_learn_model(int svm_type, int kernel_type);
 */
+    //void letor_learn_model();
     void letor_learn_model();
 
     void prepare_training_file(const std::string & query_file, const std::string & qrel_file, Xapian::doccount msetsize);
