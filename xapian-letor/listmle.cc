@@ -19,7 +19,7 @@
  */
 
 #include <xapian.h>
-//#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>           //#include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
@@ -82,7 +82,7 @@ ListMLE::rank(Xapian::RankList rlist) {
 	rl_out.add_feature_vector(fv_temp);
     }
     local_rl= rl_out.sort_by_score();
-    rl_out.set_rl(local_rl);
+    rl_out.set_fvv(local_rl);
     
     return rl_out;
 }
