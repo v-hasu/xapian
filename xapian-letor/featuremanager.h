@@ -22,7 +22,7 @@
 #define FEATURE_MANAGER_H
 
 #include <xapian.h>
-//#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>           //#include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
@@ -50,11 +50,11 @@ public:
     
     std::map<int,double> transform(const Document &doc, double &weight);
 
-    Xapian::RankList create_rank_list(const Xapian::MSet & mset,std::string & qid);
+    Xapian::RankList create_rank_list(const Xapian::MSet & mset,std::string & qid, int TrainorTest);
 
     map<string, map<string,int> > load_relevance(const std::string & qrel_file);    
     
-    Xapian::FeatureVector create_feature_vector(map<int,double> fvals, int &label, std::string & did);
+    Xapian::FeatureVector create_feature_vector(map<int,double> fvals, int &label, Xapian::docid & did);
     
     std::string get_did(const Document &doc);
     
