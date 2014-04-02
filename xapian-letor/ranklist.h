@@ -23,7 +23,7 @@
 
 
 #include <xapian.h>
-//#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>           //#include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
@@ -45,14 +45,17 @@ class XAPIAN_VISIBILITY_DEFAULT RankList {
 
   public:
   
-    std::vector<FeatureVector> rl;
+    std::vector<FeatureVector> fvv;
     
     std::string qid;
+
     RankList();
     
     void set_qid(std::string qid1);
+
+    std::string get_qid();
     
-    void set_rl(std::vector<FeatureVector> local_rl);
+    void set_fvv(std::vector<FeatureVector> & local_fvv);
 
     void add_feature_vector(const Xapian::FeatureVector fv);//was & fv initially,check back later
 
