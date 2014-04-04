@@ -98,6 +98,7 @@ try {
     db.set_metadata("collection_len_title", str(total_title_len));
     db.set_metadata("collection_len_body", str(total_len - total_title_len));
     db.set_metadata("collection_len_whole", str(total_len));
+    std::cout<<"metadata updated!"<<endl;
     db.commit();
 } catch (const Xapian::Error & e) {
     cout << e.get_description() << endl;
