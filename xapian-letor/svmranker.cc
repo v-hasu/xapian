@@ -176,7 +176,7 @@ struct svm_node * test;
         const char *error_msg;
 
         //input_file_name = get_cwd().append("/train.txt");
-        model_file_name = get_cwd().append("/model.txt");
+        //model_file_name = get_cwd().append("/model.txt");
 
         //read_problem(input_file_name.c_str());
         error_msg = svm_check_parameter(&prob, &param);
@@ -187,18 +187,39 @@ struct svm_node * test;
 
         trainmodel = svm_train(&prob, &param);
         this->model = trainmodel;
+        /*
         if (svm_save_model(model_file_name.c_str(), trainmodel)) {
         	fprintf(stderr, "can't save model to file %s\n", model_file_name.c_str());
-        	//exit(1);
+        	exit(1);
         }
         else{
             cout << "svm model saved successfully" << endl;
         }
+        */
     }
 
 
-    void load_model(const std::string & model_file);
+    void 
+    SVMRanker::load_model(const std::string & model_file){
+        this->model = svm_load_model(model_file.c_str());
+    }
 
-    void save_model();
+    void 
+    SVMRanker::save_model(){
+
+        string model_file_name;
+
+        model_file_name = get_cwd().append("/model.txt");
+
+        trainmodel = this->model;
+
+        if (svm_save_model(model_file_name.c_str(), trainmodel)) {
+            fprintf(stderr, "can't save model to file %s\n", model_file_name.c_str());
+            //exit(1);
+        }
+        else{
+            cout << "svm model saved successfully" << endl;
+        }
+    };
 
     double score(const Xapian::FeatureVector & fv);
