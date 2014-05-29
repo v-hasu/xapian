@@ -9,6 +9,7 @@
 #include <map>
 #include <vector>
 #include <algorithm>
+#include <iostream> 
 
 using namespace std;
 using namespace Xapian;
@@ -133,9 +134,23 @@ RankList::get_data() {
     return this->fvv;
 }
 
-std::vector<FeatureVector>
+bool fvvcompare(FeatureVector fv1, FeatureVector fv2){
+	if (fv1.get_score()>fv2.get_score())
+		return true;
+	else
+		return false;
+}
+
+void
 RankList::sort_by_score() {
-    std::vector<FeatureVector> local_fvv = this->fvv;
-    sort(local_fvv.begin(), local_fvv.end(), FeatureVector::before);
-    return local_fvv;
+	//still have bug to be fixed
+	std::vector<FeatureVector> unsorted_fvv = this->fvv;
+	int fvv_size = unsorted_fvv.size();
+	for(int i = 0; i<fvv_size; ++i)
+		std::cout<<"score: "<<unsorted_fvv[i].get_score()<<endl;
+
+	std::sort(unsorted_fvv.begin(),unsorted_fvv.begin()+fvv_size,fvvcompare);
+
+	for(int i = 0; i<fvv_size; ++i)
+		std::cout<<"score: "<<unsorted_fvv[i].get_score()<<endl;
 }
