@@ -34,7 +34,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <map>
+#include <vector>
 #include <set>
 #include <math.h>
 
@@ -235,17 +235,19 @@ try {
 
     ltr.letor_learn_model();
 
-    map<Xapian::docid,double> letor_mset = ltr.letor_score(mset);
+    std::vector<Xapian::docid> rank_did  = ltr.letor_rank(mset);
+
+    int rank_size = rank_did.size();
+    cout << "rank_size:" << rank_size<<"\n";
+
+    for (int i=0; i<rank_size; ++i){
+        cout << "Item: " << i+1 << "\n";
+        Xapian::Document doc = db.get_document(rank_did[i]);
+        cout << doc.get_data() << "\n";
+    }
 
     /*
-    if(letor_mset.size()==0){
-    	cout << "****************************************" <<endl;
-    	cout << "final map is empty!!!";
-    }
-    else{
-    	cout << "****************************************" <<endl;
-    	cout << "the size of the letor_map is: " << letor_mset.size() <<endl;
-    }*/
+    map<Xapian::docid,double> letor_mset = ltr.letor_score(mset);
 
     set<MyPair,MyTestCompare> s;
     map<Xapian::docid, double>::iterator iter = letor_mset.begin();
@@ -264,6 +266,7 @@ try {
 		cout << doc.get_data() << "\n";
 		rank++;
     }
+    */
 
     cout << flush;
 } catch (const Xapian::QueryParserError & e) {
