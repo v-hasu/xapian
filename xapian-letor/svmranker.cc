@@ -24,6 +24,7 @@
 #include <xapian/visibility.h>
 
 #include "ranker.h"
+#include "scorer.h"
 #include "ranklist.h"
 #include "svmranker.h"
 //#include "evalmetric.h"
@@ -35,6 +36,8 @@
 #include <list>
 #include <map>
 
+#include <algorithm>
+
 #include <libsvm/svm.h>
 
 using namespace std;
@@ -45,6 +48,13 @@ struct svm_parameter param;
 struct svm_problem prob;
 struct svm_model * trainmodel;
 struct svm_node * test;
+
+    struct MyTestCompare {
+        bool operator()(const FeatureVector & firstfv, const FeatureVector& secondfv) const {
+        //return firstPair.second < secondPair.second;
+            return firstfv.score > secondfv.score;
+        }
+    };
 
     //string model;
     //double[] weight;
@@ -60,10 +70,10 @@ struct svm_node * test;
     /* Override all the four methods below in the ranker sub-classes files
      * wiz svmranker.cc , listnet.cc, listmle.cc and so on
      */
-    std::vector<double>
+    Xapian::RankList
     SVMRanker::rank(Xapian::RankList & ranklist){
 
-        std::vector<double> scores;
+        //std::vector<double> scores;
         std::vector<Xapian::FeatureVector> testfvv = ranklist.get_data();
 
         int testnonzero;
@@ -98,11 +108,24 @@ struct svm_node * test;
             //cout << "svm_predict begin!" << endl;
             svmscore = svm_predict(this->model,test);
             //cout << "svmscore: " << svmscore <<endl;
-            scores.push_back(svmscore);
+            //scores.push_back(svmscore);
+            testfvv[i].set_score(svmscore);
+            std::cout<<"testfvv: "<<testfvv[i].score<<endl;
 
         }
         //cout << "rank over " << endl;
-        return scores;
+        for (int i = 0; i <testfvvsize; ++i){
+            std::cout<<"testfvv: "<<testfvv[i].score<<endl;
+        }
+        ranklist.sort_by_score();
+        std::sort(testfvv.begin(),testfvv.begin()+testfvvsize,MyTestCompare());
+        for (int i = 0; i <testfvvsize; ++i){
+            std::cout<<"testfvv: "<<testfvv[i].score<<endl;
+        }
+
+        //scorer.ndcg_scorer(ranklist);
+
+        return ranklist;//need to be sorted
     }
     
     void
