@@ -53,7 +53,7 @@ Ranker::get_traindata(){
     return this->traindata;
 }
 
-std::vector<double>
+Xapian::RankList
 Ranker::rank(Xapian::RankList & rl) {
 /*    std::vector<double> res;
     Xapian::ListMLE listmle;
