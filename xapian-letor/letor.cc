@@ -25,8 +25,8 @@
 #include "letor_internal.h"
 #include "ranker.h"
 #include "svmranker.h"
-#include "listmle.h"
-#include "listnet.h"
+//#include "listmle.h"
+//#include "listnet.h"
 
 #include <vector>
 #include <map>
@@ -59,10 +59,15 @@ void
 Letor::set_query(const Xapian::Query & query) {
     internal->letor_query = query;
 }
-
+/*
 map<Xapian::docid, double>
 Letor::letor_score(const Xapian::MSet & mset) {
     return internal->letor_score(mset);
+}*/
+
+std::vector<Xapian::docid> 
+Letor::letor_rank(const Xapian::MSet & mset) {
+    return internal->letor_rank(mset);
 }
 
 void
@@ -84,14 +89,14 @@ void
 Letor::create_ranker(int ranker_type) {
     switch(ranker_type) {
         case 0: internal->ranker = new SVMRanker;//internal->ranker = * new SVMRanker;
-                cout << "SVMRanker created!" <<endl;
+                //std::cout << "SVMRanker created!" <<endl;
                 break;
-        case 1: internal->ranker = new ListMLE;//internal->ranker = * new ListMLE;
+/*        case 1: internal->ranker = new ListMLE;//internal->ranker = * new ListMLE;
                 cout << "ListMLE created!" <<endl;
                 break;
         case 2: internal->ranker = new ListNET;//internal->ranker = * new ListMLE;
                cout << "ListNET created!" <<endl;
-               break;
+               break;*/
         default: ;//cout<<"Please specify proper ranker.";
     }
 }
