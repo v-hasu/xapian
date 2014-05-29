@@ -121,6 +121,8 @@ static string get_cwd() {
  * and after that use the machine learned model file
  * to assign a score to the document
  */
+
+/*
 map<Xapian::docid, double>
 Letor::Internal::letor_score(const Xapian::MSet & mset) {
 
@@ -135,7 +137,6 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
     //cout << "ranklist create_rank_list" <<endl;
     std::vector<double> scores = ranker->rank(rlist);
     
-    /*Converting list<double> scores to map<docid,double> letor_mset*/
     int num_fv = scores.size();
     for(int i=0; i<num_fv; ++i) {
     	//Xapian::docid did = (Xapian::docid) rlist.rl[i].did;//need to convert did from string to Xapian::docid
@@ -148,6 +149,42 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
     }
     
     return letor_mset;
+}*/
+
+std::vector<Xapian::docid> 
+Letor::Internal::letor_rank(const Xapian::MSet & mset) {
+
+    map<Xapian::docid, double> letor_mset;
+
+    Xapian::FeatureManager fm;
+    fm.set_database(letor_db);
+    fm.set_query(letor_query);
+    
+    std::string s = "virtual_qid";
+    Xapian::RankList rlist = fm.create_rank_list(mset, s, 0);
+    
+    Xapian::RankList ranklist = ranker->rank(rlist);
+
+    std::vector<Xapian::FeatureVector> rankedfvv = ranklist.get_data();
+    int rankedsize = rankedfvv.size();
+    std::vector<Xapian::docid> rankeddid;
+    
+    for (int i=0; i<rankedsize; ++i){
+        rankeddid.push_back(rankedfvv[i].get_did());
+    }
+
+    
+
+    /*
+    int num_fv = scores.size();
+    for(int i=0; i<num_fv; ++i) {
+        std::vector<FeatureVector> rl = rlist.get_data();
+        Xapian::docid did = rl[i].get_did();
+        letor_mset.insert(pair<Xapian::docid,double>(did, scores[i]));
+    }*/
+    
+    //return letor_mset;
+    return rankeddid;
 }
 
 /*
