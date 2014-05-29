@@ -34,6 +34,7 @@ using namespace std;
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT Letor {
+
   public:
     
     /// @private @internal Class representing the Letor internals.
@@ -153,6 +154,8 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *  @return Letor score corresponding to each document in mset as map<docid, score> format.
      */
     std::map<Xapian::docid, double> letor_score(const Xapian::MSet & mset);
+
+    std::vector<Xapian::docid>  letor_rank(const Xapian::MSet & mset);
 
     /** In this method the model is learnt and stored in 'model.txt' file using training file 'train.txt'. It is required that libsvm is
      *  installed in the system. The SVM model is learnt using libsvm.
