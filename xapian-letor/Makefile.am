@@ -73,9 +73,8 @@ noinst_HEADERS +=\
 	ranklist.h\
 	ranker.h\
 	evalmetric.h\
-	listmle.h\
-	listnet.h\
-	svmranker.h
+	svmranker.h\
+	scorer.h
 
 lib_src +=\
 	letor.cc\
@@ -86,9 +85,8 @@ lib_src +=\
 	ranklist.cc\
 	ranker.cc\
 	evalmetric.cc\
-	listmle.cc\
-	listnet.cc\
-	svmranker.cc
+	svmranker.cc\
+	scorer.cc
 
 
 DISTCHECK_CONFIGURE_FLAGS = "XAPIAN_CONFIG=$(XAPIAN_CONFIG)"
