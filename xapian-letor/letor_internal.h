@@ -40,7 +40,9 @@ class Letor::Internal : public Xapian::Internal::intrusive_base {
 
   public:
 
-    std::map<Xapian::docid, double>  letor_score(const Xapian::MSet & mset);
+    //std::map<Xapian::docid, double>  letor_score(const Xapian::MSet & mset);
+
+    std::vector<Xapian::docid>  letor_rank(const Xapian::MSet & mset);
 
 /*
     map<string, double> inverse_doc_freq(const Xapian::Database & db, const Xapian::Query & query);
