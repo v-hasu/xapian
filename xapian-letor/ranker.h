@@ -29,6 +29,7 @@
 
 #include <ranklist.h>
 #include <evalmetric.h>
+#include <scorer.h>
 
 #include <list>
 #include <map>
@@ -50,7 +51,11 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker {
 
     Xapian::EvalMetric trainMetric;
     Xapian::EvalMetric testMetric;
+
   public:
+
+    Scorer scorer;
+
     Ranker();
 
     std::vector<Xapian::RankList> get_traindata();
@@ -58,7 +63,7 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker {
     /* Override all the four methods below in the ranker sub-classes files
      * wiz svmranker.cc , listnet.cc, listmle.cc and so on
      */
-    virtual std::vector<double> rank( Xapian::RankList & rl);
+    virtual Xapian::RankList rank( Xapian::RankList & rl);
     
     void set_training_data(vector<Xapian::RankList> training_data1);
 
