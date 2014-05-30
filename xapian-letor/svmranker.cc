@@ -24,7 +24,6 @@
 #include <xapian/visibility.h>
 
 #include "ranker.h"
-#include "scorer.h"
 #include "ranklist.h"
 #include "svmranker.h"
 //#include "evalmetric.h"
@@ -123,9 +122,11 @@ struct svm_node * test;
             std::cout<<"testfvv: "<<testfvv[i].score<<endl;
         }
 
-        //scorer.ndcg_scorer(ranklist);
+        Xapian::Scorer svm_scorer = get_scorer();
+        svm_scorer.ndcg_scorer(ranklist);
+        svm_scorer.err_scorer(ranklist);
 
-        return ranklist;//need to be sorted
+        return ranklist;
     }
     
     void
