@@ -44,6 +44,7 @@ Scorer::ndcg_scorer(Xapian::RankList & rl){//NGCD first
 	std::vector<double> lables;
 	/*
 	 *test date from http://en.wikipedia.org/wiki/Discounted_cumulative_gain
+	 *should return a ERR score 0.63
 	lables.push_back(3.0);
 	lables.push_back(2.0);
 	lables.push_back(3.0);
@@ -59,10 +60,11 @@ Scorer::ndcg_scorer(Xapian::RankList & rl){//NGCD first
 	double DCG = get_dcg(lables);
 	sort(lables.begin(),lables.begin()+fvvsize,std::greater<int>());
 	double iDCG = get_dcg(lables);
-
+	/*
 	std::cout<<"DCG"<<DCG<<endl;
 	std::cout<<"iDCG"<<iDCG<<endl;
 	std::cout<<"ndcg"<<DCG/iDCG<<endl;
+	*/
 	return DCG/iDCG;
 
 }
@@ -73,36 +75,39 @@ Scorer::err_scorer(Xapian::RankList & rl){
 	int MAX_LABEL = 16; //hard code first, meaning 2^(5-1)
 
 	std::vector<Xapian::FeatureVector> fvv = rl.get_data();
-	int fvvsize = 3;//fvv.size();
+	int fvvsize = //fvv.size();
 	std::vector<double> lables;
 
-	// *test date from http://en.wikipedia.org/wiki/Discounted_cumulative_gain
+	/*
+	 *test date from http://lingpipe-blog.com/2010/03/09/chapelle-metzler-zhang-grinspan-2009-expected-reciprocal-rank-for-graded-relevance/
+	 *should return a ERR score 0.63
 	lables.push_back(3.0);
 	lables.push_back(2.0);
 	lables.push_back(4.0);
+	*/
 
 	for (int i = 0; i <fvvsize; ++i){
 		lables[i] = (pow(2,lables[i])-1)/MAX_LABEL;//fvv[i].get_label()
-		std::cout<<"lables:"<<lables[i]<<endl;
+		//std::cout<<"lables:"<<lables[i]<<endl;
 	}
 
 	double err_score = lables[0];
-	std::cout<<"ERR:"<<err_score<<endl;
+	//std::cout<<"ERR:"<<err_score<<endl;
 
 	for (int i = 1; i <fvvsize; ++i){
 		double temp_err = (1.0/(i+1.0))*lables[i];
-		std::cout<<"lables:"<<lables[i]<<endl;
-		std::cout<<"temp_err:"<<temp_err<<endl;
+		//std::cout<<"lables:"<<lables[i]<<endl;
+		//std::cout<<"temp_err:"<<temp_err<<endl;
 		for (int j=i-1; j>=0; --j)
 			temp_err *= (1-lables[j]);
-		std::cout<<"temp_err:"<<temp_err<<endl;
+		//std::cout<<"temp_err:"<<temp_err<<endl;
 		err_score += temp_err;
-		std::cout<<"ERR:"<<err_score<<endl;
+		//std::cout<<"ERR:"<<err_score<<endl;
 	}
-	std::cout<<"ERR:"<<err_score<<endl;
+	//std::cout<<"ERR:"<<err_score<<endl;
 	return err_score;
 
 }
 
 
-
+l
