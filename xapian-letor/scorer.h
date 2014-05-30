@@ -17,7 +17,9 @@ class XAPIAN_VISIBILITY_DEFAULT Scorer {
   public: 
 	Scorer();
 
-	double ndcg_scorer(RankList rl);
+	double ndcg_scorer(Xapian::RankList & rl);
+
+	double err_scorer(Xapian::RankList & rl);
 
 };
 
