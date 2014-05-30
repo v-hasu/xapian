@@ -53,6 +53,11 @@ Ranker::get_traindata(){
     return this->traindata;
 }
 
+Xapian::Scorer 
+Ranker::get_scorer(){
+    return this->scorer;
+}
+
 Xapian::RankList
 Ranker::rank(Xapian::RankList & rl) {
 /*    std::vector<double> res;
