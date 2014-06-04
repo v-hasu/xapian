@@ -17,39 +17,40 @@ using namespace Xapian;
 Scorer::Scorer() {
 }
 
-static double 
-get_dcg(std::vector<double> lables){
-
-	int length = lables.size();
-	double dcg = 0.0;//need error processing
-
-	if (lables.empty()!=1){
-		dcg = lables[0];
-	}
-	else{
-		std::cout<<"lables in scorer is empty!"<<endl;
-	}	
-
-	for (int i = 1; i <length; ++i){
-		dcg += lables[i]/(log(i+1)/log(2));
-	}
-	
-	return dcg;
-
-}
-
 static std::vector<double>
-get_lables(Xapian::RankList rl){
+get_labels(Xapian::RankList rl){
 
 	std::vector<Xapian::FeatureVector> fvv = rl.get_data();
 	int fvvsize = fvv.size();
-	std::vector<double> lables;
+	std::vector<double> labels;
 	
 	for (int i = 0; i <fvvsize; ++i){
-		lables.push_back(fvv[i].get_label());
+		labels.push_back(fvv[i].get_label());
+		std::cout<<labels[i]<<endl;
 	}
 
-	return lables;
+	return labels;
+
+}
+
+static double 
+get_dcg(std::vector<double> labels){
+
+	int length = labels.size();
+	double dcg = 0.0;//need error processing
+
+	if (labels.empty()!=1){
+		dcg = labels[0];
+	}
+	else{
+		std::cout<<"label in labels is empty!"<<endl;
+	}	
+
+	for (int i = 1; i <length; ++i){
+		dcg += labels[i]/(log(i+1)/log(2));
+	}
+	
+	return dcg;
 
 }
 
@@ -61,14 +62,14 @@ output:0.932
 double
 Scorer::ndcg_scorer(Xapian::RankList & rl){
 
-	std::vector<double> lables = get_lables(rl);
+	std::vector<double> labels = get_labels(rl);
 
 	//DCG score of original ranking
-	double DCG = get_dcg(lables);
+	double DCG = get_dcg(labels);
 
 	//DCG score of ideal ranking
-	sort(lables.begin(),lables.begin()+lables.size(),std::greater<int>());
-	double iDCG = get_dcg(lables);
+	sort(labels.begin(),labels.begin()+labels.size(),std::greater<int>());
+	double iDCG = get_dcg(labels);
 
 	return DCG/iDCG;
 
@@ -85,25 +86,25 @@ Scorer::err_scorer(Xapian::RankList & rl){
 	//hard code for the a five-point scale, the 16 means 2^(5-1)
 	int MAX_LABEL = 16; 
 
-	std::vector<double> lables = get_lables(rl);
-	int length = lables.size();
+	std::vector<double> labels = get_labels(rl);
+	int length = labels.size();
 
 	//compute the satisfaction probability for lable of each doc in the ranking
 	for (int i = 0; i <length; ++i){
-		lables[i] = (pow(2,lables[i])-1)/MAX_LABEL;
+		labels[i] = (pow(2,labels[i])-1)/MAX_LABEL;
 	}
 
-	double err_score = lables[0];
+	double err_score = labels[0];
 
 	//compute the accumulated probability for each doc which user will stop at
 	for (int i = 1; i <length; ++i){
 
 		//single stop probability
-		double temp_err = (1.0/(i+1.0))*lables[i];
+		double temp_err = (1.0/(i+1.0))*labels[i];
 
 		//for user 
 		for (int j=i-1; j>=0; --j){
-			temp_err *= (1-lables[j]);
+			temp_err *= (1-labels[j]);
 		}
 		err_score += temp_err;
 	}
