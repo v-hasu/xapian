@@ -48,13 +48,6 @@ struct svm_problem prob;
 struct svm_model * trainmodel;
 struct svm_node * test;
 
-    struct MyTestCompare {
-        bool operator()(const FeatureVector & firstfv, const FeatureVector& secondfv) const {
-        //return firstPair.second < secondPair.second;
-            return firstfv.score > secondfv.score;
-        }
-    };
-
     //string model;
     //double[] weight;
 
@@ -72,7 +65,7 @@ struct svm_node * test;
     Xapian::RankList
     SVMRanker::rank(Xapian::RankList & ranklist){
 
-        //std::vector<double> scores;
+        Xapian::Scorer svm_scorer = get_scorer();
         std::vector<Xapian::FeatureVector> testfvv = ranklist.get_data();
 
         int testnonzero;
@@ -109,23 +102,18 @@ struct svm_node * test;
             //cout << "svmscore: " << svmscore <<endl;
             //scores.push_back(svmscore);
             testfvv[i].set_score(svmscore);
-            std::cout<<"testfvv: "<<testfvv[i].score<<endl;
+            //std::cout<<"testfvv: "<<testfvv[i].score<<endl;
 
         }
         //cout << "rank over " << endl;
-        for (int i = 0; i <testfvvsize; ++i){
-            std::cout<<"testfvv: "<<testfvv[i].score<<endl;
-        }
+
+        ranklist.set_fvv(testfvv);
         ranklist.sort_by_score();
-        std::sort(testfvv.begin(),testfvv.begin()+testfvvsize,MyTestCompare());
-        for (int i = 0; i <testfvvsize; ++i){
-            std::cout<<"testfvv: "<<testfvv[i].score<<endl;
-        }
-
-        Xapian::Scorer svm_scorer = get_scorer();
-        svm_scorer.ndcg_scorer(ranklist);
-        svm_scorer.err_scorer(ranklist);
-
+/*      
+        std::vector<double> scores;  
+        std::cout << "NDCG: " << svm_scorer.ndcg_scorer(ranklist) << endl;
+        std::cout << "ERR: " << svm_scorer.err_scorer(ranklist) << endl;
+*/
         return ranklist;
     }
     

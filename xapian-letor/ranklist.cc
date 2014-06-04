@@ -72,6 +72,12 @@ RankList::RankList()
 	*/
 }
 
+struct MyCompare {
+    bool operator()(const FeatureVector & firstfv, const FeatureVector& secondfv) const {
+        return firstfv.score > secondfv.score;
+    }
+};
+
 std::vector<FeatureVector>
 RankList::normalise() {
 
@@ -134,23 +140,12 @@ RankList::get_data() {
     return this->fvv;
 }
 
-bool fvvcompare(FeatureVector fv1, FeatureVector fv2){
-	if (fv1.get_score()>fv2.get_score())
-		return true;
-	else
-		return false;
-}
-
 void
 RankList::sort_by_score() {
-	//still have bug to be fixed
+
 	std::vector<FeatureVector> unsorted_fvv = this->fvv;
 	int fvv_size = unsorted_fvv.size();
-	for(int i = 0; i<fvv_size; ++i)
-		std::cout<<"score: "<<unsorted_fvv[i].get_score()<<endl;
 
-	std::sort(unsorted_fvv.begin(),unsorted_fvv.begin()+fvv_size,fvvcompare);
-
-	for(int i = 0; i<fvv_size; ++i)
-		std::cout<<"score: "<<unsorted_fvv[i].get_score()<<endl;
+	std::sort(unsorted_fvv.begin(),unsorted_fvv.begin()+fvv_size,MyCompare());
+	this->fvv = unsorted_fvv;
 }
