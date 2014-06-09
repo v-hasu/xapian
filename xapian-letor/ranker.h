@@ -21,36 +21,24 @@
 #ifndef RANKER_H
 #define RANKER_H
 
-
 #include <xapian.h>
-#include <xapian/intrusive_ptr.h>           //#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include <ranklist.h>
-//#include <evalmetric.h>
-#include <scorer.h>
+#include "ranklist.h"
+#include "scorer.h"
 
-#include <list>
-#include <map>
 #include <vector>
 
 
 using namespace std;
 
-
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT Ranker {
-    
-    //std::list<Xapian::RankList> traindata;
-    std::list<Xapian::RankList> validata;
-    std::list<Xapian::RankList> testdata;
 
     std::vector<Xapian::RankList> traindata;
-
-    //Xapian::EvalMetric trainMetric;
-    //Xapian::EvalMetric testMetric;
 
     Scorer scorer;
 
@@ -60,25 +48,17 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker {
 
     std::vector<Xapian::RankList> get_traindata();
 
-    Xapian::Scorer get_scorer();
-
-    /* Override all the four methods below in the ranker sub-classes files
-     * wiz svmranker.cc , listnet.cc, listmle.cc and so on
-     */
-    virtual Xapian::RankList rank( Xapian::RankList & rl);
-    
     void set_training_data(vector<Xapian::RankList> training_data1);
 
-    virtual void learn_model();
+    Xapian::Scorer get_scorer();
 
-    virtual void load_model(const std::string & model_file);
+    virtual void train_model();
 
     virtual void save_model();
 
-    /* This method shoudl read the letor format data and transform into the list of 
-     * Xapian::RankList format
-     */
-    std::list<Xapian::RankList> load_data(const std::string & data_file);
+    virtual void load_model(const std::string & model_file);
+
+    virtual Xapian::RankList rank( Xapian::RankList & rl);
 
 };
 

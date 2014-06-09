@@ -19,23 +19,16 @@
  */
  
 #include <xapian.h>
-#include <xapian/intrusive_ptr.h>           //#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include <ranklist.h>
-//#include <evalmetric.h>
-#include <ranker.h>
-#include <listmle.h>
+#include "ranklist.h"
+#include "ranker.h"
 
-#include <list>
-#include <map>
-#include <iostream>
-
+#include <vector>
 
 using namespace std;
-
-
 using namespace Xapian;
 
 
@@ -43,14 +36,14 @@ Ranker::Ranker() {
 
 }
 
-    /* Override all the four methods below in the ranker sub-classes files
-     * wiz svmranker.cc , listnet.cc, listmle.cc and so on
-     */
-//std::list<double>
-
 std::vector<Xapian::RankList> 
 Ranker::get_traindata(){
     return this->traindata;
+}
+
+void
+Ranker::set_training_data(vector<Xapian::RankList> training_data1) {
+    this->traindata = training_data1;
 }
 
 Xapian::Scorer 
@@ -58,44 +51,18 @@ Ranker::get_scorer(){
     return this->scorer;
 }
 
-Xapian::RankList
-Ranker::rank(Xapian::RankList & rl) {
-/*    std::vector<double> res;
-    Xapian::ListMLE listmle;
-
-    double d=1.0;
-    res.push_back(d);
-    return res;*/
+void
+Ranker::train_model() {
 }
 
 void
-Ranker::learn_model() {
-    //cout << "ATTENTION! Using th base class Ranker, No Ranker created!" <<endl;
+Ranker::save_model() {
 }
 
 void
 Ranker::load_model(const std::string & model_file) {
 }
 
-void
-Ranker::set_training_data(vector<Xapian::RankList> training_data1) {
-    this->traindata = training_data1;
-    //cout << "set training data OK"<<endl;
+Xapian::RankList
+Ranker::rank(Xapian::RankList & rl) {
 }
-
-void
-Ranker::save_model() {
-
-}
-
-    /* This method shoudl read the letor format data and transform into the list of 
-     * Xapian::RankList format
-     */
-std::list<Xapian::RankList>
-Ranker::load_data(const std::string & /*data_file*/) {
-    std::list<Xapian::RankList> res;
-
-    return res;
-}
-
-
