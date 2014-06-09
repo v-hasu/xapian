@@ -30,7 +30,7 @@
 #include "str.h"
 #include "stringutils.h"
 #include "ranker.h"
-#include "svmranker.h"
+#include "svm_ranker.h"
 #include "letor_features.h"
 
 #include <cstdio>
@@ -399,7 +399,7 @@ Letor::Internal::letor_learn_model(){
     
     ranker->set_training_data(samples);
 
-    ranker->learn_model();
+    ranker->train_model();
 }
 
 

@@ -24,7 +24,7 @@
 #include <xapian/letor.h>
 #include "letor_internal.h"
 #include "ranker.h"
-#include "svmranker.h"
+#include "svm_ranker.h"
 //#include "listmle.h"
 //#include "listnet.h"
 
