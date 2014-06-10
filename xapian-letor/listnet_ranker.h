@@ -16,17 +16,15 @@ namespace Xapian {
 class XAPIAN_VISIBILITY_DEFAULT ListNET: public Ranker {
 
     vector<double> parameters;
-    int iterations;
-    double learning_rate;
-    
+
   public:
     ListNET();
 
     void train_model();
 
-    void save_model();
+    void save_model_to_file();
 
-    void load_model(const std::string & model_file);
+    void load_model_from_file(const std::string & model_file);
 
     Xapian::RankList rank(Xapian::RankList & rl);
 
