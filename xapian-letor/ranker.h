@@ -30,7 +30,7 @@
 #include "scorer.h"
 
 #include <vector>
-
+#include <iostream>
 
 using namespace std;
 
@@ -54,9 +54,9 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker {
 
     virtual void train_model();
 
-    virtual void save_model();
+    virtual void save_model_to_file();
 
-    virtual void load_model(const std::string & model_file);
+    virtual void load_model_from_file(const std::string & model_file);
 
     virtual Xapian::RankList rank( Xapian::RankList & rl);
 

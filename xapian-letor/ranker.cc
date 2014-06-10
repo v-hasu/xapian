@@ -56,11 +56,11 @@ Ranker::train_model() {
 }
 
 void
-Ranker::save_model() {
+Ranker::save_model_to_file() {
 }
 
 void
-Ranker::load_model(const std::string & model_file) {
+Ranker::load_model_from_file(const std::string & model_file) {
 }
 
 Xapian::RankList

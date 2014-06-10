@@ -47,9 +47,9 @@ class XAPIAN_VISIBILITY_DEFAULT SVMRanker: public Ranker {
 
     void train_model();
 
-    void save_model();
+    void save_model_to_file();
 
-    void load_model(const std::string & model_file);
+    void load_model_from_file(const std::string & model_file);
 
     Xapian::RankList rank(Xapian::RankList & rl);
     

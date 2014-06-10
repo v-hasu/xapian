@@ -90,7 +90,7 @@ SVMRanker::train_model() {
     //sparse storage, libsvm just need the non-zore feature
     int flag = 0;
     for (int i = 0; i < ranklistlenl; ++i){                      //ranklist List
-        vector<Xapian::FeatureVector> trainfvv = ranklistl[i].get_data();
+        vector<Xapian::FeatureVector> trainfvv = ranklistl[i].get_fvv();
         
         int trainfvvsize = trainfvv.size();
         for(int j = 0; j < trainfvvsize; ++j ){                  //single ranklist
@@ -147,7 +147,7 @@ SVMRanker::train_model() {
 }
 
 void 
-SVMRanker::save_model(){
+SVMRanker::save_model_to_file(){
 
     string model_file_name;
 
@@ -164,7 +164,7 @@ SVMRanker::save_model(){
 }
 
 void 
-SVMRanker::load_model(const std::string & model_file){
+SVMRanker::load_model_from_file(const std::string & model_file){
     this->model = svm_load_model(model_file.c_str());
 }
 
@@ -172,7 +172,7 @@ Xapian::RankList
 SVMRanker::rank(Xapian::RankList & ranklist){
 
     Xapian::Scorer svm_scorer = get_scorer();
-    std::vector<Xapian::FeatureVector> testfvv = ranklist.get_data();
+    std::vector<Xapian::FeatureVector> testfvv = ranklist.get_fvv();
 
     int testnonzero;
     double svmscore;
