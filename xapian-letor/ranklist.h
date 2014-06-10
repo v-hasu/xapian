@@ -65,7 +65,7 @@ class XAPIAN_VISIBILITY_DEFAULT RankList {
     
     void sort_by_score();
     
-    std::vector<FeatureVector> get_data();
+    std::vector<FeatureVector> get_fvv();
 
 };
 

@@ -136,7 +136,7 @@ RankList::set_fvv(std::vector<FeatureVector> & local_fvv) {
 }
 
 std::vector<FeatureVector> 
-RankList::get_data() {
+RankList::get_fvv() {
     return this->fvv;
 }
 

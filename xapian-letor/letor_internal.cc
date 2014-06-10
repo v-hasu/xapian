@@ -165,7 +165,7 @@ Letor::Internal::letor_rank(const Xapian::MSet & mset) {
     
     Xapian::RankList ranklist = ranker->rank(rlist);
 
-    std::vector<Xapian::FeatureVector> rankedfvv = ranklist.get_data();
+    std::vector<Xapian::FeatureVector> rankedfvv = ranklist.get_fvv();
     int rankedsize = rankedfvv.size();
     std::vector<Xapian::docid> rankeddid;
     

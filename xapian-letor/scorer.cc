@@ -20,7 +20,7 @@ Scorer::Scorer() {
 static std::vector<double>
 get_labels(Xapian::RankList rl){
 
-	std::vector<Xapian::FeatureVector> fvv = rl.get_data();
+	std::vector<Xapian::FeatureVector> fvv = rl.get_fvv();
 	int fvvsize = fvv.size();
 	std::vector<double> labels;
 	
