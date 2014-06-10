@@ -66,6 +66,7 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
     void set_fvals(map<int,double> & fvals1);
     void set_score(double score1);
     void set_feature_value(int index, double value);
+    int get_fcount();
     double get_score();
     double get_label();
     Xapian::docid get_did();

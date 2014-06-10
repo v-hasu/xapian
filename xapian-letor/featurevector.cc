@@ -117,6 +117,11 @@ FeatureVector::set_fvals(map<int,double> & fvals1) {
     this->fvals=fvals1;
 }
 
+int 
+FeatureVector::get_fcount(){
+    return this->fcount;
+}
+
 double
 FeatureVector::get_score() {
     return this->score;
