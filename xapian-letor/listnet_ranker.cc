@@ -7,10 +7,31 @@
 #include "ranklist.h"
 #include "listnet_ranker.h"
 
+#include <cmath>
+
 using namespace std;
 using namespace Xapian;
 
 ListNET::ListNET(){
+}
+
+/*
+the equation (3) in the paper
+calculates cross entropy between a "base" distribution and another one.
+*/
+static double
+crossEntropy(std::vector<double> base, std::vector<double> predict) {
+
+	int base_size = base.size();
+	if (base_size != predict.size()){
+		std::cout << "the size between base distributions and another one is not match in listnet::cossaEntropy" << endl;
+	}
+	double se_sum = 0;
+	for(int i = 0; i < base_size; ++i){
+		se_sum += base[i]*log(predict[i]);
+	}
+
+	return se_sum;
 }
 
 void 
