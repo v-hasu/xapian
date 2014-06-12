@@ -43,27 +43,81 @@ ListNET::train_model(){
 	double learning_rate = 0.001;
 
 	//get the training data
-	vector<Xapian::RankList> ranklistl = get_traindata();
-	int ranklistlen = ranklistl.size();
+	vector<Xapian::RankList> ranklists = get_traindata();
+	int ranklist_len = ranklists.size();
 
 	//get feature number, it also is the number of parameters
-	int feature_cnt=1;
+	int feature_cnt = -1;
 	
-	if (ranklistlen != 0){
-		feature_cnt = ranklistl[0].fvv[0].get_fcount();
+	if (ranklist_len != 0){
+		feature_cnt = ranklists[0].fvv[0].get_fcount();
 	}
 	else{
 		std::cout << "The training data in ListNet is NULL!" << endl;
+		//exit(1);
 	}
 
 	//initialize the parameters for neural network 
 	std::vector<double> new_parameters;
-	for (int i = 1; i < feature_cnt; ++i){
+	for (int feature_num = 1; feature_num < feature_cnt; ++feature_num){
 		new_parameters.push_back(0.0);
 	}
 	
-	//train
+	//iterations
 	for(int iter = 1; iter < iterations; ++iter){
+
+		//for each sample in the training set
+		for(int sample_num = 0; sample_num < ranklist_len; ++sample_num){
+			//get the features for special sample 
+			std::vector<FeatureVector> feature_vectors = ranklists[sample_num].get_fvv();
+			int feature_vectors_len = feature_vectors.size();
+		
+			double exponent_sum = 0;//corresponding the z in the paper
+			vector<double> dot_products;//corresponding the y in the paper
+			double predicted_score_exponent = 0;
+			double temp_dot_product;
+
+			//for each feature vector in special ranklist
+			for(int feature_vectors_num = 0; feature_vectors_num < feature_vectors_len; ++feature_vectors_num){
+
+				exponent_sum += exp(feature_vectors[feature_vectors_num].get_score());
+				
+				map<int,double> feature_sets = feature_vectors[feature_vectors_num].get_fvals();
+				temp_dot_product = 0;
+				//for each feature in special feature vector
+				for (map<int,double>::iterator iter = feature_sets.begin(); iter != feature_sets.end(); ++iter){
+					temp_dot_product += new_parameters[iter->first-1] * iter->second;
+				}
+
+				dot_products.push_back(temp_dot_product);
+			}
+
+			for(int feature_vectors_num = 0; feature_vectors_num < feature_vectors_len; ++feature_vectors_num){
+				predicted_score_exponent += exp(dot_products[feature_vectors_num]);
+			}
+
+
+			for(int feature_num=0; feature_num < feature_cnt; ++feature_num) {
+
+                double delta_w = 0;
+
+                for(int feature_vectors_num=0; feature_vectors_num < feature_vectors_len; ++feature_vectors_num) {
+
+                    //feature start from 1
+                    if( feature_vectors[feature_vectors_num].get_feature_value(feature_num+1) != 0) {
+
+                        //the equation (6) in the paper
+                        delta_w -= (exp( feature_vectors[feature_vectors_num].get_score())/exponent_sum)*feature_vectors[feature_vectors_num].get_feature_value(feature_vectors_num+1);                   
+                        delta_w +=  (1/predicted_score_exponent)*exp(dot_products[feature_vectors_num])*feature_vectors[feature_vectors_num].get_feature_value(feature_vectors_num+1);
+                    }
+                }
+            //multiply learning rate 
+            new_parameters[feature_num] -= learning_rate * delta_w;
+            }
+
+
+		}
+
 
 		while(1/*read sample*/){
 			/*cross entropy*/
