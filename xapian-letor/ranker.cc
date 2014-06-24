@@ -31,9 +31,8 @@
 using namespace std;
 using namespace Xapian;
 
-
 Ranker::Ranker() {
-
+	MAXPATHLEN = 200;
 }
 
 std::vector<Xapian::RankList> 
@@ -49,6 +48,13 @@ Ranker::set_training_data(vector<Xapian::RankList> training_data1) {
 Xapian::Scorer 
 Ranker::get_scorer(){
     return this->scorer;
+}
+
+//get current working directory
+std::string 
+Ranker::get_cwd() {
+    char temp[MAXPATHLEN];
+    return (getcwd(temp, MAXPATHLEN) ? std::string(temp) : std::string(""));
 }
 
 void

@@ -46,10 +46,10 @@ struct svm_problem prob;
 struct svm_model * trainmodel;
 struct svm_node * test;
 
-static string get_cwd() {
+/*static string get_cwd() {
     char temp[200];
     return (getcwd(temp, 200) ? std::string(temp) : std::string());
-}
+}*/
 
 SVMRanker::SVMRanker() {
 }

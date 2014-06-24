@@ -42,6 +42,9 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker {
 
     Scorer scorer;
 
+    //the dufault max path length
+    int MAXPATHLEN;
+
   public:
 
     Ranker();
@@ -51,6 +54,8 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker {
     void set_training_data(vector<Xapian::RankList> training_data1);
 
     Xapian::Scorer get_scorer();
+
+    std::string get_cwd(); 
 
     virtual void train_model();
 
