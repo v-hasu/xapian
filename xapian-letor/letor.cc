@@ -25,6 +25,8 @@
 #include "letor_internal.h"
 #include "ranker.h"
 #include "svm_ranker.h"
+#include "listnet_ranker.h"
+
 //#include "listmle.h"
 //#include "listnet.h"
 
@@ -93,10 +95,10 @@ Letor::create_ranker(int ranker_type) {
                 break;
 /*        case 1: internal->ranker = new ListMLE;//internal->ranker = * new ListMLE;
                 cout << "ListMLE created!" <<endl;
-                break;
-        case 2: internal->ranker = new ListNET;//internal->ranker = * new ListMLE;
-               cout << "ListNET created!" <<endl;
-               break;*/
+                break;*/
+        case 2: internal->ranker = new ListNETRanker;//internal->ranker = * new ListMLE;
+               cout << "ListNETRanker created!" <<endl;
+               break;
         default: ;//cout<<"Please specify proper ranker.";
     }
 }
