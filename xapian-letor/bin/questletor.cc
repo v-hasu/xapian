@@ -223,7 +223,7 @@ try {
 
     ltr.set_database(db);
     ltr.set_query(query);
-    ltr.create_ranker(0);
+    ltr.create_ranker(2);
     
     //if train.txt exist, then delete
     ltr.prepare_training_file("./bin/random.query","./bin/random.qrels",100);
