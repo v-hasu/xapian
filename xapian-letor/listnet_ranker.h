@@ -13,18 +13,18 @@ using namespace std;
 
 namespace Xapian {
 
-class XAPIAN_VISIBILITY_DEFAULT ListNET: public Ranker {
+class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
 
     vector<double> parameters;
 
   public:
-    ListNET();
+    ListNETRanker();
 
     void train_model();
 
     void save_model_to_file();
 
-    void load_model_from_file(const std::string & model_file);
+    void load_model_from_file(const char *parameters_file);
 
     Xapian::RankList rank(Xapian::RankList & rl);
 

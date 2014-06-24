@@ -8,11 +8,14 @@
 #include "listnet_ranker.h"
 
 #include <cmath>
+#include <stdlib.h>
+
+#include <fstream>
 
 using namespace std;
 using namespace Xapian;
 
-ListNET::ListNET(){
+ListNETRanker::ListNETRanker(){
 }
 
 /*
@@ -35,11 +38,11 @@ crossEntropy(std::vector<double> base, std::vector<double> predict) {
 }
 
 void 
-ListNET::train_model(){
+ListNETRanker::train_model(){
 
 	std::cout << "ListNet model begin to train..." << endl;
     
-	int iterations = 100;
+	int iterations = 10;
 	double learning_rate = 0.001;
 
 	//get the training data
@@ -64,7 +67,7 @@ ListNET::train_model(){
 	}
 	
 	//iterations
-	for(int iter = 1; iter < iterations; ++iter){
+	for(int iter_num = 1; iter_num < iterations; ++iter_num){
 
 		//for each sample in the training set
 		for(int sample_num = 0; sample_num < ranklist_len; ++sample_num){
@@ -87,6 +90,7 @@ ListNET::train_model(){
 				//for each feature in special feature vector
 				for (map<int,double>::iterator iter = feature_sets.begin(); iter != feature_sets.end(); ++iter){
 					temp_dot_product += new_parameters[iter->first-1] * iter->second;
+					std::cout << "iterations: " << iter_num << "exponent_sum: " << exponent_sum << endl;
 				}
 
 				dot_products.push_back(temp_dot_product);
@@ -111,37 +115,61 @@ ListNET::train_model(){
                         delta_w +=  (1/predicted_score_exponent)*exp(dot_products[feature_vectors_num])*feature_vectors[feature_vectors_num].get_feature_value(feature_vectors_num+1);
                     }
                 }
-            //multiply learning rate 
-            new_parameters[feature_num] -= learning_rate * delta_w;
+            	//multiply learning rate 
+            	new_parameters[feature_num] -= learning_rate * delta_w;
+	            if(delta_w!=0){
+	            	std::cout << "iterations: " << iter_num << "delta_w: " << delta_w << endl;	
+	            }
+            
             }
-
-
-		}
-
-
-		while(1/*read sample*/){
-			/*cross entropy*/
-			/*gradient desent*/
-			/*update parameters*/
 		}
 	}
+	exit(1);
 
 	//save model
 	this->parameters = new_parameters;
 }
 
 void 
-ListNET::save_model_to_file(){
+ListNETRanker::save_model_to_file(){
 
+    vector<double> trained_parameters = this->parameters;
+
+	ofstream parameters_file;
+    parameters_file.open("ListNet_parameters.txt");
+
+    int parameters_size = trained_parameters.size();
+
+    for(int i = 0; i < parameters_size; ++i) {
+    	    parameters_file << trained_parameters[i] <<endl;
+    }
+    parameters_file.close();
 }
 
 void 
-ListNET::load_model_from_file(const std::string & model_file){
+ListNETRanker::load_model_from_file(const char *parameters_file){
 
+	vector<double> loaded_parameters;
+
+    fstream train_file (parameters_file, ios::in);
+    if(!train_file.good()){
+        cout << "No parameters file found"<<endl;
+    }
+
+    while (train_file.peek() != EOF) {
+
+        double parameter;//read parameter
+        train_file >> parameter;
+        loaded_parameters.push_back(parameter);
+        
+    }
+
+    train_file.close();
+    this->parameters = loaded_parameters;
 }
 
 Xapian::RankList 
-ListNET::rank(Xapian::RankList & ranklist){
+ListNETRanker::rank(Xapian::RankList & ranklist){
 
 	Xapian::Scorer svm_scorer = get_scorer();
 
