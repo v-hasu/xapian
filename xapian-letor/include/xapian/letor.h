@@ -199,7 +199,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
 
     void prepare_training_file_listwise(const std::string & query_file, int num_features);
     
-    void create_ranker(int ranker_type);
+    void create_ranker(int ranker_type, int metric_type);
     
 //    void test(Xapian::RankList rl);
 };
