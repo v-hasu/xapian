@@ -1,5 +1,5 @@
-#ifndef SCORER_H
-#define SCORER_H
+#ifndef ERRSCORER_H
+#define ERRSCORER_H
 
 #include <xapian.h>
 #include <xapian/intrusive_ptr.h>           //#include <xapian/base.h>
@@ -12,17 +12,15 @@ using namespace std;
 
 namespace Xapian {
 
-class XAPIAN_VISIBILITY_DEFAULT Scorer {
+class XAPIAN_VISIBILITY_DEFAULT ERRScorer: public Scorer {
 
   public: 
-	Scorer();
+	ERRScorer();
 
-	std::vector<double> get_labels(Xapian::RankList rl);
-
-	virtual double score(const Xapian::RankList & rl);
+	double score(const Xapian::RankList & rl);
 
 };
 
 }
 
-#endif /* SCORER_H */
+#endif /* ERRSCORER_H */
