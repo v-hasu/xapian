@@ -20,6 +20,8 @@ class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
   public:
     ListNETRanker();
 
+    ListNETRanker(int metric_type);
+
     void train_model();
 
     void save_model_to_file();
