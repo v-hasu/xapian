@@ -25,6 +25,9 @@
 
 #include "ranklist.h"
 #include "ranker.h"
+#include "scorer.h"
+#include "ndcg_scorer.h"
+#include "err_scorer.h"
 
 #include <vector>
 
@@ -33,6 +36,22 @@ using namespace Xapian;
 
 Ranker::Ranker() {
 	MAXPATHLEN = 200;
+}
+
+Ranker::Ranker(int metric_type) {
+	MAXPATHLEN = 200;
+	switch(metric_type) {
+        case 0: this -> scorer = new NDCGScorer;
+                break;
+		case 1: this -> scorer = new ERRScorer;
+                break;
+        default: ;
+    }
+}
+
+double 
+Ranker::get_score(Xapian::RankList & rl){
+	return this->scorer->score(rl);
 }
 
 std::vector<Xapian::RankList> 
@@ -45,10 +64,10 @@ Ranker::set_training_data(vector<Xapian::RankList> training_data1) {
     this->traindata = training_data1;
 }
 
-Xapian::Scorer 
+/*Xapian::Scorer 
 Ranker::get_scorer(){
     return this->scorer;
-}
+}*/
 
 //get current working directory
 std::string 
