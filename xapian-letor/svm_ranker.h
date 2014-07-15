@@ -45,6 +45,8 @@ class XAPIAN_VISIBILITY_DEFAULT SVMRanker: public Ranker {
   public:
     SVMRanker();
 
+    SVMRanker(int metric_type);
+
     void train_model();
 
     void save_model_to_file();

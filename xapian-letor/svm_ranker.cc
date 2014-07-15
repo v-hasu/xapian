@@ -54,6 +54,9 @@ struct svm_node * test;
 SVMRanker::SVMRanker() {
 }
 
+SVMRanker::SVMRanker(int metric_type):Ranker(metric_type) {
+}
+
 void
 SVMRanker::train_model() {
     std::cout << "SVM model begin to train..."<<endl;
@@ -171,7 +174,7 @@ SVMRanker::load_model_from_file(const std::string & model_file){
 Xapian::RankList
 SVMRanker::rank(Xapian::RankList & ranklist){
 
-    Xapian::Scorer svm_scorer = get_scorer();
+    //Xapian::Scorer svm_scorer = get_scorer();
     std::vector<Xapian::FeatureVector> testfvv = ranklist.get_fvv();
 
     int testnonzero;
@@ -210,5 +213,7 @@ SVMRanker::rank(Xapian::RankList & ranklist){
     std::cout << "NDCG: " << svm_scorer.ndcg_scorer(ranklist) << endl;
     std::cout << "ERR: " << svm_scorer.err_scorer(ranklist) << endl;
 */
+    std::cout << "ERR: " << get_score(ranklist) << endl;
+
     return ranklist;
 }
