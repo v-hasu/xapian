@@ -75,6 +75,16 @@ static void show_usage() {
 "  -m, --msize=MSIZE   maximum number of matches to return\n"
 "  -s, --stemmer=LANG  set the stemming language, the default is 'english'\n"
 "                      (pass 'none' to disable stemming)\n"
+"  -e, --evaluation=METRIC  specify the metric to evaluate the ranking result\n"
+"                           Supported metric: NGCG, ERR(default=NDCG)\n"
+"                           0:NDCG\n"
+"                           1:ERR\n"
+"  -r, --rank=RANK     specify the ranking algorithm\n"
+"                      Supported algorithm: (default=Hybird)\n"
+"                      0:svmrank\n"
+"                      1:ListNet\n"
+"                      2:ListMLE\n"
+"                      3:Hybird(blending the all algorithm results)\n"
 "  -p, --prefix=PFX:TERMPFX  Add a prefix\n"
 "  -b, --boolean-prefix=PFX:TERMPFX  Add a boolean prefix\n"
 "  -h, --help          display this help and exit\n"
@@ -84,11 +94,13 @@ static void show_usage() {
 int
 main(int argc, char **argv)
 try {
-    const char * opts = "d:m:s:p:b:hv";
+    const char * opts = "d:m:s:e:r:p:b:h:v";
     static const struct option long_opts[] = {
 	{ "db",		required_argument, 0, 'd' },
 	{ "msize",	required_argument, 0, 'm' },
 	{ "stemmer",	required_argument, 0, 's' },
+    { "evaluation",    required_argument, 0, 'e' },
+    { "ranker",    required_argument, 0, 'r' },
 	{ "prefix",	required_argument, 0, 'p' },
 	{ "boolean-prefix",	required_argument, 0, 'b' },
 	{ "help",	no_argument, 0, 'h' },
@@ -99,9 +111,11 @@ try {
     Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
     Xapian::Stem stemmer("english");
     int msize = 10;
-
+    int ranker_type = 0;
+    int metric_type = 0;
+    
     bool have_database = false;
-
+    
     Xapian::Database db;
     Xapian::QueryParser parser;
 	parser.add_prefix("title","S");
@@ -113,10 +127,12 @@ try {
 	    case 'm':
 		msize = atoi(optarg);
 		break;
+
 	    case 'd':
 		db.add_database(Xapian::Database(optarg));
 		have_database = true;
 		break;
+
 	    case 's':
 		try {
 		    stemmer = Xapian::Stem(optarg);
@@ -127,6 +143,15 @@ try {
 		    exit(1);
 		}
 		break;
+
+        case 'e':
+        metric_type = atoi(optarg);
+        break;
+
+        case 'r':
+        ranker_type = atoi(optarg);
+        break;
+
 	    case 'b': case 'p': {
 		const char * colon = strchr(optarg, ':');
 		if (colon == NULL) {
@@ -223,7 +248,7 @@ try {
 
     ltr.set_database(db);
     ltr.set_query(query);
-    ltr.create_ranker(2);
+    ltr.create_ranker(ranker_type,metric_type);
     
     //if train.txt exist, then delete
     ltr.prepare_training_file("./bin/random.query","./bin/random.qrels",100);
