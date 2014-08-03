@@ -71,6 +71,8 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker {
 
     virtual Xapian::RankList rank( Xapian::RankList & rl);
 
+    std::vector<Xapian::docid> aggregate(std::vector<Xapian::RankList> rls);
+
 };
 
 }

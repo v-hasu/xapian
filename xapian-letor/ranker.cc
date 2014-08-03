@@ -30,9 +30,19 @@
 #include "err_scorer.h"
 
 #include <vector>
+#include <map>
+#include <algorithm>
+#include <utility>
+#include <stdlib.h>
 
 using namespace std;
 using namespace Xapian;
+
+struct scoreComparer {
+    bool operator()(const pair<Xapian::docid, int>& first_pair, const pair<Xapian::docid, int>& second_pair) const {
+        return first_pair.second > second_pair.second;
+    }
+};
 
 Ranker::Ranker() {
 	MAXPATHLEN = 200;
@@ -90,4 +100,71 @@ Ranker::load_model_from_file(const std::string & model_file) {
 
 Xapian::RankList
 Ranker::rank(Xapian::RankList & rl) {
+}
+
+static map<Xapian::docid,int>
+transform(Xapian::RankList &rl){
+    map<Xapian::docid,int> borda_score;
+    std::vector<FeatureVector> fvv = rl.get_fvv();
+    int ranking_size = fvv.size();
+    for(int i = 0; i < ranking_size; ++i){
+        //the score definition is the fisrt doc get the maximum score, which is just the size of the doc set.
+        borda_score[fvv[i].get_did()] = ranking_size-i;
+    }
+    return borda_score;
+}
+
+static void
+combineMap(map<Xapian::docid,int> base, map<Xapian::docid,int> & new_add){
+    if(base.size()!=new_add.size()){
+        std::cout<<"the size of the ranking between each rankers are not the same"<<endl;
+        exit(2);
+    }
+    else{
+        for(map<Xapian::docid,int>::iterator iter = new_add.begin(); iter != new_add.end(); ++iter){
+            if(base.count(iter->first)!=0){
+                base[iter->first] += new_add[iter->first];
+            }
+            else{
+                std::cout<<"the document set in different ranker are not the same"<<endl;
+                exit(2);
+            }
+        }
+    }
+}
+
+//use borda-fuse
+std::vector<Xapian::docid>
+Ranker::aggregate(std::vector<Xapian::RankList> rls){
+    
+    vector<Xapian::docid> ranking_result;
+
+    int ranker_num = rls.size();
+    if (1 == ranker_num){
+        std::vector<FeatureVector> fvv = rls[0].get_fvv();
+        for(std::vector<FeatureVector>::iterator iter = fvv.begin(); iter != fvv.end(); ++iter)
+            ranking_result.push_back(iter->did);
+    }
+    else if (0 == ranker_num){
+        std::cout<<"No ranklist in rls in ranker.cc!"<<endl;
+        exit(2);
+    }
+    else{
+        map<Xapian::docid,int> base = transform(rls[0]);
+        for (int i = 1; i < ranker_num; ++i){
+            map<Xapian::docid,int> new_add = transform(rls[i]);
+            combineMap(base,new_add);
+        }
+
+        vector<pair<Xapian::docid, int> > aggregate_score_vec(base.begin(), base.end());  
+        sort(aggregate_score_vec.begin(), aggregate_score_vec.end(), scoreComparer());
+
+        for(vector<pair<Xapian::docid, int> >::iterator iter = aggregate_score_vec.begin(); iter != aggregate_score_vec.begin(); ++iter){
+            ranking_result.push_back(iter->first);
+        }
+
+    }
+
+    return ranking_result;
+
 }
