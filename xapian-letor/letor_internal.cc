@@ -151,39 +151,67 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
     return letor_mset;
 }*/
 
-std::vector<Xapian::docid> 
-Letor::Internal::letor_rank(const Xapian::MSet & mset) {
+// std::vector<Xapian::docid> 
+// Letor::Internal::letor_rank(const Xapian::MSet & mset) {
 
-    map<Xapian::docid, double> letor_mset;
+//     map<Xapian::docid, double> letor_mset;
 
-    Xapian::FeatureManager fm;
-    fm.set_database(letor_db);
-    fm.set_query(letor_query);
+//     Xapian::FeatureManager fm;
+//     fm.set_database(letor_db);
+//     fm.set_query(letor_query);
     
-    std::string s = "virtual_qid";
-    Xapian::RankList rlist = fm.create_rank_list(mset, s, 0);
+//     std::string s = "virtual_qid";
+//     Xapian::RankList rlist = fm.create_rank_list(mset, s, 0);
     
-    Xapian::RankList ranklist = ranker->rank(rlist);
+//     Xapian::RankList ranklist = ranker->rank(rlist);
 
-    std::vector<Xapian::FeatureVector> rankedfvv = ranklist.get_fvv();
-    int rankedsize = rankedfvv.size();
-    std::vector<Xapian::docid> rankeddid;
+//     std::vector<Xapian::FeatureVector> rankedfvv = ranklist.get_fvv();
+//     int rankedsize = rankedfvv.size();
+//     std::vector<Xapian::docid> rankeddid;
     
-    for (int i=0; i<rankedsize; ++i){
-        rankeddid.push_back(rankedfvv[i].get_did());
+//     for (int i=0; i<rankedsize; ++i){
+//         rankeddid.push_back(rankedfvv[i].get_did());
+//     }
+
+    
+
+//     /*
+//     int num_fv = scores.size();
+//     for(int i=0; i<num_fv; ++i) {
+//         std::vector<FeatureVector> rl = rlist.get_data();
+//         Xapian::docid did = rl[i].get_did();
+//         letor_mset.insert(pair<Xapian::docid,double>(did, scores[i]));
+//     }*/
+    
+//     //return letor_mset;
+//     return rankeddid;
+// }
+
+vector<string> 
+Letor::Internal::letor_rank_from_letor4(const Xapian::MSet & mset) {
+
+    vector<string> rankeddid;
+    vector<double> scores;
+    string input_file_name;
+
+    input_file_name = get_cwd().append("/MQ2008/Fold1/test.txt");//("/MQ2008/test_test.txt");
+    
+    vector<Xapian::RankList> samples = load_ranklist_from_letor4(input_file_name.c_str());
+    
+    int samples_size = samples.size();
+
+    for (int i = 0; i < samples_size; ++i){
+        Xapian::RankList ranklist = ranker->rank(samples[i]);
+        double NDCG_Score = ranker->get_score(samples[i]);
+        if (NDCG_Score!=1){
+            scores.push_back(NDCG_Score);
+            //cout << "the NDCG scores of samples[" << i << "] is: " << ranker->get_score(samples[i]) << endl;
+        }
+        
     }
+    double NDCG_score = (accumulate(scores.begin() , scores.end() , 0.0)/(double)samples_size);
+    cout << "the NDCG scores is: " << NDCG_score << endl;
 
-    
-
-    /*
-    int num_fv = scores.size();
-    for(int i=0; i<num_fv; ++i) {
-        std::vector<FeatureVector> rl = rlist.get_data();
-        Xapian::docid did = rl[i].get_did();
-        letor_mset.insert(pair<Xapian::docid,double>(did, scores[i]));
-    }*/
-    
-    //return letor_mset;
     return rankeddid;
 }
 
@@ -300,88 +328,177 @@ read_problem(const char *filename) {
 	fclose(fp);
 }
 */
+
+
+// vector<Xapian::RankList>
+// Letor::Internal::load_list_ranklist(const char *filename) { //directly use train.txt instead of train.bin
+//     vector<Xapian::RankList> ranklist;
+//     fstream train_file (filename, ios::in);
+//     if(!train_file.good()){
+//         cout << "No train file found"<<endl;
+//     }
+
+//     std::vector<FeatureVector> fvv;
+//     string lastqid;
+//     int k =0;
+//     while (train_file.peek() != EOF) {
+//         k++;
+//         FeatureVector fv;//new a fv
+
+//         double label;//read label
+//         train_file >> label;
+//         fv.set_label(label);
+//         train_file.ignore();
+
+//         string qid;//read qid
+//         train_file >> qid;
+
+//         qid = qid.substr(qid.find(":")+1,qid.length());
+
+//         if (lastqid==""){
+//             lastqid = qid;
+//         }
+//         //std::cout << fv.did << endl;
+
+//         std::map<int,double> fvals;//read features
+//         for(int i = 1; i < 20; ++i){
+//             train_file.ignore();
+//             int feature_index;
+//             double feature_value;
+//             train_file >> feature_index;
+//             train_file.ignore();
+//             train_file >> feature_value;
+//             //std::cout<<feature_index<<" "<<feature_value<<endl;
+//             fvals[feature_index] = feature_value;
+//         }
+//         fv.set_fvals(fvals);
+
+//         string did;
+//         train_file >> did;
+//         //cout << "original did: " <<did<<endl;
+//         did = did.substr(did.find("=")+1,did.length());
+//         Xapian::docid docid = (Xapian::docid) atoi(did.c_str());
+//         //cout << "did: " << did <<endl;
+//         //cout << "docid: " << docid << endl;
+        
+
+//         fv.set_did(docid);
+//         train_file.ignore();
+//         //std::cout << fv.did << endl;
+
+//         fv.set_fcount(20);
+//         fv.set_score(0);        
+
+//         fvv.push_back(fv);
+
+//         if (qid != lastqid) {
+//             RankList rlist;
+//             rlist.set_qid(lastqid);
+//             //cout << "show qid: "<< lastqid << endl;
+//             rlist.set_fvv(fvv);
+//             ranklist.push_back(rlist);
+//             fvv = std::vector<FeatureVector>();
+//             lastqid = qid;
+//         }
+        
+//     }   
+//     RankList rlist;
+//     rlist.set_qid(lastqid);
+//     //cout << "show qid: "<< lastqid << endl;
+//     rlist.set_fvv(fvv);
+//     ranklist.push_back(rlist);
+
+//     train_file.close();
+//     //cout << "ranklist loading OK" <<endl;
+//     cout << "the size of ranklist read from the training set: " << ranklist.size() <<endl;
+//     return ranklist;
+// }
+
+/* Load the data from the MSRA letor4.0 dataset */
 vector<Xapian::RankList>
-Letor::Internal::load_list_ranklist(const char *filename) { //directly use train.txt instead of train.bin
-    vector<Xapian::RankList> ranklist;
+Letor::Internal::load_ranklist_from_letor4(const char *filename) { 
+    vector<Xapian::RankList> ranklist_list;
+
     fstream train_file (filename, ios::in);
     if(!train_file.good()){
         cout << "No train file found"<<endl;
     }
 
     std::vector<FeatureVector> fvv;
-    string lastqid;
-    int k =0;
+    string lastqid = " ";//record the lastqid, if not the same the current qid, then new a ranklist
+
     while (train_file.peek() != EOF) {
-        k++;
         FeatureVector fv;//new a fv
 
         double label;//read label
         train_file >> label;
         fv.set_label(label);
+
+        //cout << "label: " << label << endl;
         train_file.ignore();
 
         string qid;//read qid
         train_file >> qid;
 
         qid = qid.substr(qid.find(":")+1,qid.length());
+        //cout << "qid: " << qid << endl;
 
-        if (lastqid==""){
+        if (lastqid == " "){//give the current qid to the last qid, when the first time using the lastqid
             lastqid = qid;
         }
         //std::cout << fv.did << endl;
 
+        int feature_index;
+        double feature_value;
         std::map<int,double> fvals;//read features
-        for(int i = 1; i < 20; ++i){
+        for(int i = 0; i < 46; ++i){//46 features in the letor4.0 dateset, hard code
             train_file.ignore();
-            int feature_index;
-            double feature_value;
             train_file >> feature_index;
+
             train_file.ignore();
             train_file >> feature_value;
-            //std::cout<<feature_index<<" "<<feature_value<<endl;
-            fvals[feature_index] = feature_value;
+
+            //the feature index is begin from 1, in order to simply the computing, let it start from 0
+            fvals[feature_index-1] = feature_value; 
+            //cout << "feature_index: " << feature_index-1 << "feature_value: " << feature_value << endl;
         }
         fv.set_fvals(fvals);
 
         string did;
+        train_file.ignore(100,'=');
         train_file >> did;
-        //cout << "original did: " <<did<<endl;
-        did = did.substr(did.find("=")+1,did.length());
-        Xapian::docid docid = (Xapian::docid) atoi(did.c_str());
-        //cout << "did: " << did <<endl;
-        //cout << "docid: " << docid << endl;
-        
+        fv.set_did(did);
+        //cout << "did:" << did << endl;
+        train_file.ignore(100,'\n');
 
-        fv.set_did(docid);
-        train_file.ignore();
-        //std::cout << fv.did << endl;
-
-        fv.set_fcount(20);
-        fv.set_score(0);        
+        fv.set_fcount(46);//hard code now! only for letor4.0
+        fv.set_score(0);
 
         fvv.push_back(fv);
 
+        //when the qid is not the same as the last qid, it is the time to new a ranklist
         if (qid != lastqid) {
             RankList rlist;
             rlist.set_qid(lastqid);
             //cout << "show qid: "<< lastqid << endl;
             rlist.set_fvv(fvv);
-            ranklist.push_back(rlist);
+            ranklist_list.push_back(rlist);
             fvv = std::vector<FeatureVector>();
             lastqid = qid;
         }
         
     }   
+    //push back the last ranklist
     RankList rlist;
     rlist.set_qid(lastqid);
     //cout << "show qid: "<< lastqid << endl;
     rlist.set_fvv(fvv);
-    ranklist.push_back(rlist);
+    ranklist_list.push_back(rlist);
 
     train_file.close();
     //cout << "ranklist loading OK" <<endl;
-    cout << "the size of ranklist read from the training set: " << ranklist.size() <<endl;
-    return ranklist;
+    cout << "the size of ranklist read from the training set: " << ranklist_list.size() <<endl;
+    return ranklist_list;
 }
 
 void 
@@ -390,12 +507,12 @@ Letor::Internal::letor_learn_model(){
     //printf("Learning the model..");
     string input_file_name;
     //string model_file_name;
-    input_file_name = get_cwd().append("/train.txt");
+    input_file_name = get_cwd().append("/MQ2008/Fold1/train.txt");//("/MQ2008/test_train.txt");
     //model_file_name = get_cwd().append("/model.txt");
     
     //read_problem(input_file_name.c_str());
     
-    vector<Xapian::RankList> samples = load_list_ranklist(input_file_name.c_str());
+    vector<Xapian::RankList> samples = load_ranklist_from_letor4(input_file_name.c_str());
     
     ranker->set_training_data(samples);
 
