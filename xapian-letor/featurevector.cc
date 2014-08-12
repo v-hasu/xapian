@@ -57,7 +57,7 @@ FeatureVector::FeatureVector() {
 FeatureVector::FeatureVector(const FeatureVector & o) {
     this->label = o.label;
     this->score = o.score;
-    this->fcount = 20;//hard code definition in Xapian::FeatureManager::transform, could be optimized later 
+    this->fcount = o.fcount;//hard code definition in Xapian::FeatureManager::transform, could be optimized later 
     this->fvals = o.fvals;
     this->did = o.did;
 }
@@ -92,8 +92,13 @@ FeatureVector::load_relevance(const std::string & qrel_file) {
     return qrel;
 }
 
+// void
+// FeatureVector::set_did(const Xapian::docid & did1) {
+//     this->did=did1;
+// }
+
 void
-FeatureVector::set_did(const Xapian::docid & did1) {
+FeatureVector::set_did(const string & did1) {
     this->did=did1;
 }
 
@@ -137,7 +142,12 @@ FeatureVector::get_fvals() {
     return this->fvals;
 }
 
-Xapian::docid
+// Xapian::docid
+// FeatureVector::get_did() {
+//     return this->did;
+// }
+
+string
 FeatureVector::get_did() {
     return this->did;
 }

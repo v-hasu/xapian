@@ -30,6 +30,7 @@
 
 #include <list>
 #include <map>
+#include <string>
 
 using namespace std;
 
@@ -43,7 +44,8 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
     double score;       //no definition
     std::map<int,double> fvals; //store the values of features, we could use a vector instead of map?
     int fcount;         //feature number, now default is 19+1(the array start from 1, not 0)=20
-    Xapian::docid did;         //Docid
+    //Xapian::docid did;         //Docid
+    string did;
 
     FeatureVector();
 
@@ -60,7 +62,8 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
 
     map<string, map<string, int> > load_relevance(const std::string & qrel_file);
 
-    void set_did(const Xapian::docid & did1);
+    //void set_did(const Xapian::docid & did1);
+    void set_did(const string & did1);
     void set_fcount(int fcount1);
     void set_label(double label1);
     void set_fvals(map<int,double> & fvals1);
@@ -69,7 +72,8 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
     int get_fcount();
     double get_score();
     double get_label();
-    Xapian::docid get_did();
+    //Xapian::docid get_did();
+    string get_did();
     std::map<int,double> get_fvals();
     double get_feature_value(int index);
     int get_nonzero_num();
