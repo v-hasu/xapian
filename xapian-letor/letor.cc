@@ -66,9 +66,15 @@ Letor::letor_score(const Xapian::MSet & mset) {
     return internal->letor_score(mset);
 }*/
 
-std::vector<Xapian::docid> 
+// std::vector<Xapian::docid> 
+// Letor::letor_rank(const Xapian::MSet & mset) {
+//     return internal->letor_rank(mset);
+// }
+
+std::vector<string> 
 Letor::letor_rank(const Xapian::MSet & mset) {
-    return internal->letor_rank(mset);
+    //return internal->letor_rank(mset);
+    return internal->letor_rank_from_letor4(mset);
 }
 
 void
