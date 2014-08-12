@@ -101,7 +101,7 @@ Ranker::load_model_from_file(const std::string & model_file) {
 Xapian::RankList
 Ranker::rank(Xapian::RankList & rl) {
 }
-
+/*
 static map<Xapian::docid,int>
 transform(Xapian::RankList &rl){
     map<Xapian::docid,int> borda_score;
@@ -167,4 +167,4 @@ Ranker::aggregate(std::vector<Xapian::RankList> rls){
 
     return ranking_result;
 
-}
+}*/

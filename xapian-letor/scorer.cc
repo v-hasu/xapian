@@ -26,7 +26,6 @@ Scorer::get_labels(Xapian::RankList rl){
 	
 	for (int i = 0; i <fvvsize; ++i){
 		labels.push_back(fvv[i].get_label());
-		std::cout<<labels[i]<<endl;
 	}
 
 	return labels;
