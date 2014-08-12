@@ -86,8 +86,9 @@ FeatureManager::create_rank_list(const Xapian::MSet & mset, std::string & qid, i
 }
 
 Xapian::FeatureVector
-FeatureManager::create_feature_vector(map<int,double> fvals, int &label, Xapian::docid & did) {
+FeatureManager::create_feature_vector(map<int,double> fvals, int &label, Xapian::docid & did1) {
     Xapian::FeatureVector fv;
+    string did;
     fv.set_did(did);
     fv.set_label(label);
     fv.set_fvals(fvals);
