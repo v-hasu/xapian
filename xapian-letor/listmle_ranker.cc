@@ -27,7 +27,7 @@ calculateInnerProduct(vector<double> parameters, map<int,double> feature_sets){
 	double inner_product = 0.0;
 
 	for (map<int,double>::iterator iter = feature_sets.begin(); iter != feature_sets.end(); ++iter){
-		inner_product += parameters[iter->first-1] * iter->second;//the feature start from 1, while the parameters strat from 0
+		inner_product += parameters[iter->first] * iter->second;//the feature start from 1, while the parameters strat from 0
 	}
 
 	return inner_product;
@@ -64,7 +64,7 @@ negativeLogLikelihood(vector<FeatureVector> sorted_feature_vectors, vector<doubl
 static vector<double>
 calculateGradient(vector<FeatureVector> sorted_feature_vectors, vector<double> new_parameters) {
 
-	vector<double> gradient(sorted_feature_vectors[0].get_fcount()-1,0);//need to be optimized,how to get the length of the features
+	vector<double> gradient(sorted_feature_vectors[0].get_fcount(),0);//need to be optimized,how to get the length of the features
 
 	int list_length = sorted_feature_vectors.size();
 
@@ -83,7 +83,7 @@ calculateGradient(vector<FeatureVector> sorted_feature_vectors, vector<double> n
 		//for each feature in special feature vector
 		for (map<int,double>::iterator iter = feature_sets.begin(); iter != feature_sets.end(); ++iter){
 
-			gradient[iter->first-1] += iter->second * exponents[i]/ expsum;
+			gradient[iter->first] += iter->second * exponents[i]/ expsum;
 
 		}
 		
@@ -93,7 +93,7 @@ calculateGradient(vector<FeatureVector> sorted_feature_vectors, vector<double> n
 
 	for (map<int,double>::iterator iter = first_place_in_ground_truth_feature_sets.begin(); iter != first_place_in_ground_truth_feature_sets.end(); ++iter){
 
-			gradient[iter->first-1] -= iter->second;
+			gradient[iter->first] -= iter->second;
 
 		}
 
@@ -101,12 +101,12 @@ calculateGradient(vector<FeatureVector> sorted_feature_vectors, vector<double> n
 }
 
 static void
-updateParameters(vector<double> new_parameters, vector<double> gradient, double learning_rate){
+updateParameters(vector<double> & new_parameters, vector<double> gradient, double learning_rate){
 	int num = new_parameters.size();
 	if (num != gradient.size()){
-		std::cout << "the size between base new_parameters and gradient is not match in listnet::updateParameters" << endl;
-		std::cout << "the size of new_parameters: " << num << endl;
-		std::cout << "the size of gradient: " << gradient.size() << endl;
+		cout << "the size between base new_parameters and gradient is not match in listnet::updateParameters" << endl;
+		cout << "the size of new_parameters: " << num << endl;
+		cout << "the size of gradient: " << gradient.size() << endl;
 	}
 	else{
 		for (int i = 0; i < num; i++){
@@ -116,7 +116,7 @@ updateParameters(vector<double> new_parameters, vector<double> gradient, double 
 }
 
 static void
-batchLearning(RankList ranklists, vector<double> new_parameters, double learning_rate){
+batchLearning(RankList ranklists, vector<double> & new_parameters, double learning_rate){
 
 	//ListMLE need to use the ground truth, so sort before train 
 	ranklists.sort_by_label();
@@ -136,7 +136,7 @@ ListMLERanker::train_model(){
 	
 	std::cout << "ListNet model begin to train..." << endl;
     
-	int iterations = 10;
+	int iterations = 100;
 	double learning_rate = 0.001;
 
 	//get the training data
@@ -155,12 +155,12 @@ ListMLERanker::train_model(){
 
 	//initialize the parameters for neural network 
 	std::vector<double> new_parameters;
-	for (int feature_num = 1; feature_num < feature_cnt; ++feature_num){
+	for (int feature_num = 0; feature_num < feature_cnt; ++feature_num){
 		new_parameters.push_back(0.0);
 	}
 	
 	//iterations
-	for(int iter_num = 1; iter_num < iterations; ++iter_num){
+	for(int iter_num = 0; iter_num < iterations; ++iter_num){
 
 		for(int sample_num = 0; sample_num < ranklist_len; ++sample_num){
 			
@@ -213,7 +213,6 @@ ListMLERanker::load_model_from_file(const char *parameters_file){
 Xapian::RankList 
 ListMLERanker::rank(Xapian::RankList & ranklist){
 
-	//Xapian::Scorer svm_scorer = get_scorer();
 
     std::vector<Xapian::FeatureVector> testfvv = ranklist.get_fvv();
     int testfvvsize = testfvv.size();
@@ -221,27 +220,41 @@ ListMLERanker::rank(Xapian::RankList & ranklist){
     std::vector<double> new_parameters = this->parameters;
     int parameters_size = new_parameters.size();
 
+    // for (int i = 0; i < parameters_size; ++i){
+    // 	cout << "new_parameters[" << i << "]: " << new_parameters[i] << endl;
+    // }
+
     for (int i = 0; i <testfvvsize; ++i){
 
-    	int listnet_score = 0;
+    	double listmle_score = 0;
 
         map <int,double> fvals = testfvv[i].get_fvals();
-        int fvalsize = fvals.size();
+        int fval_size = fvals.size();
 
-        if (fvalsize != parameters_size+1){//fval start from 1, while the parameters start from 1
-        	std::cout << "number of fvals don't match the number of ListNet parameters" << endl;
+        if (fval_size != parameters_size){//fval start from 1, while the parameters start from 1
+        	cout << "number of fvals don't match the number of ListNet parameters" << endl;
+        	cout << "the size of parameters: " << parameters_size << endl;
+			cout << "the size of fvals: " << fval_size << endl;
         }
 
-        for(int j = 1; j < fvalsize; ++j){                 //fvals starts from 1, not 0      
-        	listnet_score += fvals[j]* new_parameters[j-1];      
+        for(int j = 0; j < fval_size; ++j){                 //fvals starts from 1, not 0      
+        	listmle_score += fvals[j] * new_parameters[j];   
+        	// cout << "fvals[" << j << "]: " << fvals[j] << endl;
+        	// cout << "new_parameters[" << j << "]: " << new_parameters[j] << endl;
+        	// cout << "listnet_score: " << listnet_score << endl;
         } 
 
-        testfvv[i].set_score(listnet_score);
+        testfvv[i].set_score(listmle_score);
 
     }
 
     ranklist.set_fvv(testfvv);
     ranklist.sort_by_score();
+/*      
+    std::vector<double> scores;  
+    std::cout << "NDCG: " << svm_scorer.ndcg_scorer(ranklist) << endl;
+    std::cout << "ERR: " << svm_scorer.err_scorer(ranklist) << endl;
+*/
 
     return ranklist;
 }

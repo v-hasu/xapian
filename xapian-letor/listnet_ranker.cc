@@ -27,7 +27,7 @@ calculateInnerProduct(vector<double> parameters, map<int,double> feature_sets){
 	double inner_product = 0.0;
 
 	for (map<int,double>::iterator iter = feature_sets.begin(); iter != feature_sets.end(); ++iter){
-		inner_product += parameters[iter->first-1] * iter->second;//the feature start from 1, while the parameters strat from 0
+		inner_product += parameters[iter->first] * iter->second;
 	}
 
 	return inner_product;
@@ -77,15 +77,32 @@ initializeProbability(vector<FeatureVector> feature_vectors, vector<double> new_
 		expsum_z += exp(calculateInnerProduct(new_parameters,feature_vectors[i].get_fvals()));
 	}
 
+	//cout << "expsum_y: " << expsum_y << endl;
+	//cout << "expsum_z: " << expsum_z << endl;
+
 	for(int i = 0; i < list_length; i++){
 		if (feature_vectors[i].get_label()==0){
 			prob_y.push_back(exp(-1)/expsum_y);
+			// cout << "exp(-1): " << exp(-1) << endl;
+			// cout << "expsum_y: " << expsum_y << endl;
+			// cout << "exp(-1)/expsum_y: " << exp(-1)/expsum_y << endl;
 		}
 		else{
 			prob_y.push_back(exp(1)/expsum_y);
+			// cout << "exp(1): " << exp(1) << endl;
+			// cout << "expsum_y: " << expsum_y << endl;
+			// cout << "exp(1)/expsum_y: " << exp(1)/expsum_y << endl;
 		}
 		prob_z.push_back(exp(calculateInnerProduct(new_parameters,feature_vectors[i].get_fvals()))/expsum_z);
+		// cout << "calculateInnerProduct(new_parameters,feature_vectors[i].get_fvals()): " << calculateInnerProduct(new_parameters,feature_vectors[i].get_fvals()) << endl;
+		// cout << "expsum_z: " << expsum_z << endl;
+		// cout << "exp(calculateInnerProduct(new_parameters,feature_vectors[i].get_fvals()))/expsum_z: " << exp(calculateInnerProduct(new_parameters,feature_vectors[i].get_fvals()))/expsum_z << endl;
 	}
+
+	// for(int i = 0; i < list_length; i++){
+	// 	cout << "prob_y[" << i << "]: " << prob_y[i] << endl;
+	// 	cout << "prob_z[" << i << "]: " << prob_z[i] << endl;
+	// }
 
 	vector< vector<double> > prob;
 	prob.push_back(prob_y);
@@ -101,7 +118,7 @@ the equation (6) in the paper
 static vector<double>
 calculateGradient(vector<FeatureVector> feature_vectors, vector< vector<double> > prob) {
 
-	vector<double> gradient(feature_vectors[0].get_fcount()-1,0);//need to be optimized,how to get the length of the features?
+	vector<double> gradient(feature_vectors[0].get_fcount(),0);//need to be optimized,how to get the length of the features?
 	int list_length = feature_vectors.size();
 	
 	vector<double> prob_y(prob[0]);
@@ -116,13 +133,17 @@ calculateGradient(vector<FeatureVector> feature_vectors, vector< vector<double> 
 			//the first term in the serivation, the equation (6) in the paper
 			double first_term = - prob_y[i] * iter->second;//the feature start from 1, while the parameters strat from 0
 
-			gradient[iter->first-1] += first_term;//not i
-			//std::cout << "first_term: " << first_term << endl;
+			gradient[iter->first] += first_term;//not i
+			//cout << "prob_y[i]: " << prob_y[i] << endl;
+			
 
 			//the second term in the serivation, the equation (6) in the paper
 			double second_term = prob_z[i] * iter->second;//the feature start from 1, while the parameters strat from 0
-			gradient[iter->first-1] += second_term;
-			//std::cout << "gradient["<< iter->first-1 << "]: " << gradient[iter->first-1] << endl;
+			gradient[iter->first] += second_term;
+			//cout << "prob_z[i]: " << prob_z[i] << endl;
+			// cout << "first_term: " << first_term << endl;
+			// cout << "second_term: " << second_term << endl;
+			// cout << "gradient["<< iter->first << "]: " << gradient[iter->first] << endl;
 
 		}
 	}
@@ -131,25 +152,35 @@ calculateGradient(vector<FeatureVector> feature_vectors, vector< vector<double> 
 }
 
 static void
-updateParameters(vector<double> new_parameters, vector<double> gradient, double learning_rate){
+updateParameters(vector<double> & new_parameters, vector<double> gradient, double learning_rate){
 	int num = new_parameters.size();
 	if (num != gradient.size()){
-		std::cout << "the size between base new_parameters and gradient is not match in listnet::updateParameters" << endl;
-		std::cout << "the size of new_parameters: " << num << endl;
-		std::cout << "the size of gradient: " << gradient.size() << endl;
+		cout << "the size between base new_parameters and gradient is not match in listnet::updateParameters" << endl;
+		cout << "the size of new_parameters: " << num << endl;
+		cout << "the size of gradient: " << gradient.size() << endl;
 	}
 	else{
 		for (int i = 0; i < num; i++){
-			new_parameters[i] -= gradient[i] * learning_rate;
-			// std::cout << "new_parameters: " << new_parameters[i]<< endl;
-			// std::cout << "gradient: " << gradient[i]<< endl;
-			// std::cout << "learning_rate: " << learning_rate<< endl;
+
+			// if (i == 45){
+			// 	cout << "before**********************" << endl;
+			// 	cout << "new_parameters[" << i << "]: " << new_parameters[i]<< endl;
+			// 	cout << "gradient[" << i << "]: " << gradient[i]<< endl;
+			// }
+
+			double temp = new_parameters[i];
+			new_parameters[i] = temp - (gradient[i] * learning_rate);
+
+			// if (i == 45){
+			// 	cout << "after***********************" << endl;
+			// 	cout << "new_parameters[" << i << "]: " << new_parameters[i]<< endl;
+			// }		
 		}
 	}
 }
 
 static void
-batchLearning(RankList ranklists, vector<double> new_parameters, double learning_rate){
+batchLearning(RankList & ranklists, vector<double> & new_parameters, double learning_rate){
 
 	//get feature vectors
 	vector<FeatureVector> feature_vectors = ranklists.get_fvv();
@@ -162,7 +193,7 @@ batchLearning(RankList ranklists, vector<double> new_parameters, double learning
 	//update parameters: w = w - gradient * learningRate
 	updateParameters(new_parameters, gradient, learning_rate);
 
-	//std::cout << crossEntropy(prob[0], prob[1]) << endl;
+	//cout << "crossEntropy" << crossEntropy(prob[0], prob[1]) << endl;
 
 }
 
@@ -172,8 +203,8 @@ ListNETRanker::train_model(){
 	std::cout << "ListNet model begin to train..." << endl;
     
     //should be optimized, the parameter should could be setting in the main function
-	int iterations = 10;
-	double learning_rate = 0.001;
+	int iterations = 50;
+	double learning_rate = 0.005;
 
 	//get the training data
 	vector<Xapian::RankList> ranklists = get_traindata();
@@ -185,24 +216,37 @@ ListNETRanker::train_model(){
 		feature_cnt = ranklists[0].fvv[0].get_fcount();
 	}
 	else{
-		std::cout << "The training data in ListNet is NULL!" << endl;
+		cout << "The training data in ListNet is NULL!" << endl;
 		exit(1);
 	}
 
 	//initialize the parameters for neural network 
-	vector<double> new_parameters(feature_cnt-1, 0.0);//see FeatureManager::transform, the feature start from 1, so need to add 1, need 
+	vector<double> new_parameters(feature_cnt, 0.0);//see FeatureManager::transform, the feature start from 1, so need to add 1, need 
 
 	//iterations
-	for(int iter_num = 1; iter_num < iterations; ++iter_num){
+	for(int iter_num = 0; iter_num < iterations; ++iter_num){
+
+		// cout << "*********************************" << endl;
+		// cout << "iterations: " << iter_num << endl;
+		// cout << "*********************************" << endl;
+
+		// batchLearning(ranklists[1], new_parameters, learning_rate);
 
 		for(int sample_num = 0; sample_num < ranklist_len; ++sample_num){
-			
+
 			batchLearning(ranklists[sample_num], new_parameters, learning_rate);
 
 		}
 	}
 
 	this->parameters = new_parameters;
+
+	// int parameters_size = new_parameters.size();
+
+ //    for (int i = 0; i < parameters_size; ++i){
+ //    	cout << "this->parameters[" << i << "]: " << this->parameters[i] << endl;
+ //    	cout << "new_parameters[" << i << "]: " << new_parameters[i] << endl;
+ //    }
 }
 
 void 
@@ -254,19 +298,26 @@ ListNETRanker::rank(Xapian::RankList & ranklist){
     std::vector<double> new_parameters = this->parameters;
     int parameters_size = new_parameters.size();
 
+    // for (int i = 0; i < parameters_size; ++i){
+    // 	cout << "new_parameters[" << i << "]: " << new_parameters[i] << endl;
+    // }
+
     for (int i = 0; i <testfvvsize; ++i){
 
-    	int listnet_score = 0;
+    	double listnet_score = 0;
 
         map <int,double> fvals = testfvv[i].get_fvals();
         int fvalsize = fvals.size();
 
-        if (fvalsize != parameters_size+1){//fval start from 1, while the parameters start from 1
+        if (fvalsize != parameters_size){//fval start from 1, while the parameters start from 1
         	std::cout << "number of fvals don't match the number of ListNet parameters" << endl;
         }
 
-        for(int j = 1; j < fvalsize; ++j){                 //fvals starts from 1, not 0      
-        	listnet_score += fvals[j]* new_parameters[j-1];      
+        for(int j = 0; j < fvalsize; ++j){                 //fvals starts from 1, not 0      
+        	listnet_score += fvals[j] * new_parameters[j];   
+        	// cout << "fvals[" << j << "]: " << fvals[j] << endl;
+        	// cout << "new_parameters[" << j << "]: " << new_parameters[j] << endl;
+        	// cout << "listnet_score: " << listnet_score << endl;
         } 
 
         testfvv[i].set_score(listnet_score);

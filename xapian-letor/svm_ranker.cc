@@ -212,8 +212,8 @@ SVMRanker::rank(Xapian::RankList & ranklist){
     std::vector<double> scores;  
     std::cout << "NDCG: " << svm_scorer.ndcg_scorer(ranklist) << endl;
     std::cout << "ERR: " << svm_scorer.err_scorer(ranklist) << endl;
-*/
-    std::cout << "ERR: " << get_score(ranklist) << endl;
 
+    std::cout << "ERR: " << get_score(ranklist) << endl;
+*/
     return ranklist;
 }
