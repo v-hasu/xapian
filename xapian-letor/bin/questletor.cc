@@ -251,7 +251,7 @@ try {
     ltr.create_ranker(ranker_type,metric_type);
     
     //if train.txt exist, then delete
-    ltr.prepare_training_file("./bin/random.query","./bin/random.qrels",100);
+    //ltr.prepare_training_file("./bin/random.query","./bin/random.qrels",100);
 
     //int num_features = 40;
     //ltr.prepare_training_file_listwise("filename",num_features);
@@ -260,15 +260,17 @@ try {
 
     ltr.letor_learn_model();
 
-    std::vector<Xapian::docid> rank_did  = ltr.letor_rank(mset);
+    //std::vector<Xapian::docid> rank_did  = ltr.letor_rank(mset);
+    vector<string> rank_did  = ltr.letor_rank(mset);
 
     int rank_size = rank_did.size();
     cout << "rank_size:" << rank_size<<"\n";
 
     for (int i=0; i<rank_size; ++i){
         cout << "Item: " << i+1 << "\n";
-        Xapian::Document doc = db.get_document(rank_did[i]);
-        cout << doc.get_data() << "\n";
+        //Xapian::Document doc = db.get_document(rank_did[i]);
+        //cout << doc.get_data() << "\n";
+        cout << rank_did[i] << endl;
     }
 
     /*
