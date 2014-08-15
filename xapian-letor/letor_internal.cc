@@ -45,7 +45,6 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <string>
 #include <map>
 #include <math.h>
 
@@ -187,14 +186,15 @@ Letor::Internal::letor_score(const Xapian::MSet & mset) {
 //     return rankeddid;
 // }
 
-vector<string> 
-Letor::Internal::letor_rank_from_letor4(const Xapian::MSet & mset) {
+void
+Letor::Internal::letor_rank_from_letor4() {
 
     vector<string> rankeddid;
     vector<double> scores;
     string input_file_name;
 
-    input_file_name = get_cwd().append("/MQ2008/Fold1/test.txt");//("/MQ2008/test_test.txt");
+    //input_file_name = get_cwd().append("/MQ2008/Fold1/test.txt");//("/MQ2008/test_test.txt");
+    input_file_name = get_cwd().append(this->training_set);//("/MQ2008/test_test.txt");
     
     vector<Xapian::RankList> samples = load_ranklist_from_letor4(input_file_name.c_str());
     
@@ -202,17 +202,11 @@ Letor::Internal::letor_rank_from_letor4(const Xapian::MSet & mset) {
 
     for (int i = 0; i < samples_size; ++i){
         Xapian::RankList ranklist = ranker->rank(samples[i]);
-        double NDCG_Score = ranker->get_score(samples[i]);
-        if (NDCG_Score!=1){
-            scores.push_back(NDCG_Score);
-            //cout << "the NDCG scores of samples[" << i << "] is: " << ranker->get_score(samples[i]) << endl;
-        }
-        
+        double Score = ranker->get_score(samples[i]);
+        scores.push_back(Score);
     }
-    double NDCG_score = (accumulate(scores.begin() , scores.end() , 0.0)/(double)samples_size);
-    cout << "the NDCG scores is: " << NDCG_score << endl;
-
-    return rankeddid;
+    double final_score = (accumulate(scores.begin() , scores.end() , 0.0)/(double)scores.size());
+    cout << "the final scores is: " << final_score << endl;
 }
 
 /*
@@ -507,8 +501,9 @@ Letor::Internal::letor_learn_model(){
     //printf("Learning the model..");
     string input_file_name;
     //string model_file_name;
-    input_file_name = get_cwd().append("/MQ2008/Fold1/train.txt");//("/MQ2008/test_train.txt");
+    //input_file_name = get_cwd().append("/MQ2008/Fold1/train.txt");//("/MQ2008/test_train.txt");
     //model_file_name = get_cwd().append("/model.txt");
+    input_file_name = get_cwd().append(this->test_set);//("/MQ2008/test_test.txt");
     
     //read_problem(input_file_name.c_str());
     
@@ -517,6 +512,7 @@ Letor::Internal::letor_learn_model(){
     ranker->set_training_data(samples);
 
     ranker->train_model();
+
 }
 
 
