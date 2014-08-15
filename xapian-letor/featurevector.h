@@ -74,7 +74,7 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
     double get_label();
     //Xapian::docid get_did();
     string get_did();
-    std::map<int,double> get_fvals();
+    std::map<int,double> get_fvals() const;
     double get_feature_value(int index);
     int get_nonzero_num();
     

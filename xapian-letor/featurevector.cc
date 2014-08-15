@@ -138,7 +138,7 @@ FeatureVector::get_label() {
 }
 
 std::map<int,double>
-FeatureVector::get_fvals() {
+FeatureVector::get_fvals() const {
     return this->fvals;
 }
 
