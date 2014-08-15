@@ -25,7 +25,13 @@ Scorer::get_labels(Xapian::RankList rl){
 	std::vector<double> labels;
 	
 	for (int i = 0; i <fvvsize; ++i){
-		labels.push_back(fvv[i].get_label());
+		double label = fvv[i].get_label();
+		if (2.0 == label){
+			labels.push_back(3.0);
+		} else{
+			labels.push_back(label);
+		}
+		// labels.push_back(fvv[i].get_label());
 	}
 
 	return labels;
