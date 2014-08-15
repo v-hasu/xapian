@@ -24,7 +24,7 @@ noinst_HEADERS =
 BUILT_SOURCES =
 noinst_LTLIBRARIES =
 CLEANFILES =
-DISTCLEANFILES =
+DISTCLEANFILES =l
 MAINTAINERCLEANFILES =
 bin_PROGRAMS =
 EXTRA_PROGRAMS =
@@ -78,6 +78,7 @@ noinst_HEADERS +=\
 	listmle_ranker.h\
 	adarank_ranker.h\
 	scorer.h\
+	map_scorer.h\
 	err_scorer.h\
 	ndcg_scorer.h
 
@@ -95,6 +96,7 @@ lib_src +=\
 	listmle_ranker.cc\
 	adarank_ranker.cc\
 	scorer.cc\
+	map_scorer.cc\
 	err_scorer.cc\
 	ndcg_scorer.cc
 
