@@ -41,9 +41,20 @@ namespace Xapian {
 class FeatureVector;
 
 class XAPIAN_VISIBILITY_DEFAULT RankList {
-    
 
   public:
+
+    class featureComparer {
+
+    public:
+
+        int feature_index;
+
+        featureComparer(int feature_index);
+
+        bool operator ()(const FeatureVector & firstfv, const FeatureVector & secondfv) const ;
+
+    };
   
     std::vector<FeatureVector> fvv;
     
@@ -66,6 +77,8 @@ class XAPIAN_VISIBILITY_DEFAULT RankList {
     void sort_by_score();
 
     void sort_by_label();
+
+    void sort_by_feature(int feature_index); 
     
     std::vector<FeatureVector> get_fvv();
 

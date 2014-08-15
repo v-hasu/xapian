@@ -17,6 +17,17 @@ using namespace Xapian;
 RankList::RankList(){
 }
 
+RankList::featureComparer::featureComparer(int new_feature_index){
+    this->feature_index = new_feature_index;
+}
+
+bool 
+RankList::featureComparer::operator()(const FeatureVector & firstfv, const FeatureVector & secondfv) const {
+    map<int,double> firstfvals = firstfv.get_fvals();
+    map<int,double> secondfvals = secondfv.get_fvals();
+    return firstfvals[this->feature_index] > secondfvals[this->feature_index];
+}
+
 struct scoreComparer {
     bool operator()(const FeatureVector & firstfv, const FeatureVector& secondfv) const {
         return firstfv.score > secondfv.score;
@@ -95,7 +106,6 @@ void
 RankList::sort_by_score() {
 
 	std::vector<FeatureVector> unsorted_fvv = this->fvv;
-	int fvv_size = unsorted_fvv.size();
 
 	std::sort(unsorted_fvv.begin(),unsorted_fvv.end(),scoreComparer());
 	this->fvv = unsorted_fvv;
@@ -105,8 +115,16 @@ void
 RankList::sort_by_label() {
 
 	std::vector<FeatureVector> unsorted_fvv = this->fvv;
-	int fvv_size = unsorted_fvv.size();
 
 	std::sort(unsorted_fvv.begin(),unsorted_fvv.end(),labelComparer());
 	this->fvv = unsorted_fvv;
+}
+
+void
+RankList::sort_by_feature(int feature_index) {
+
+    std::vector<FeatureVector> unsorted_fvv = this->fvv;
+
+    std::sort(unsorted_fvv.begin(),unsorted_fvv.end(), featureComparer(feature_index));
+    this->fvv = unsorted_fvv;
 }
