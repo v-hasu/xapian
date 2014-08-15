@@ -18,32 +18,31 @@ using namespace Xapian;
 NDCGScorer::NDCGScorer() {
 }
 
-static double 
-get_dcg(const std::vector<double> labels, int N){
+static vector<double> 
+get_dcg(const std::vector<double> labels, int topN){
 
-	int length = labels.size();
-	int dcg_size;
-	if (N < length){
-		dcg_size = N;
-	} else{
-		dcg_size = length;
+	int labels_size = labels.size();
+	vector<double> dcgs;
+
+	dcgs.push_back(labels[0]);
+
+	for (double position = 1; position < topN; ++position){
+		double current_score;
+
+		if (position < labels_size){
+			current_score = labels[position];
+		} else {
+			current_score = 0;
+		}
+
+		if (1 == position){
+			dcgs.push_back(dcgs[0] + current_score);
+		} else {
+			dcgs.push_back(dcgs[position - 1] + (current_score * log(2.0) / log(position + 1.0)));
+		}
+
 	}
-	
-	double dcg = 0.0;//need error processing
-
-	if (labels.empty()!=1){
-		dcg = labels[0];
-	}
-	else{
-		std::cout<<"label in labels is empty!"<<endl;
-	}	
-
-	for (int i = 1; i <dcg_size; ++i){
-		dcg += labels[i]/(log(i+1)/log(2));
-	}
-	
-	return dcg;
-
+	return dcgs;
 }
 
 /*
@@ -56,18 +55,19 @@ NDCGScorer::score(const Xapian::RankList & rl){
 
 	std::vector<double> labels = get_labels(rl);
 	int labels_size = labels.size();
+	int TopN = labels_size;
 
 	//DCG score of original ranking
-	double DCG = get_dcg(labels, labels_size);
+	vector<double> DCG = get_dcg(labels, TopN);
 
 	//DCG score of ideal ranking
 	sort(labels.begin(),labels.begin()+labels.size(),std::greater<int>());
 
-	double iDCG = get_dcg(labels, labels_size);
+	vector<double> iDCG = get_dcg(labels, TopN);
 
-	if (iDCG==0){
-		return 1;
+	if (0 == iDCG[TopN-1]){
+		return 0;
 	} else{
-		return DCG/iDCG;
+		return DCG[TopN-1]/iDCG[TopN-1];
 	}
 }

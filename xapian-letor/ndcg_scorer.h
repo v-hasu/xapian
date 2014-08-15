@@ -13,7 +13,7 @@ using namespace std;
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT NDCGScorer: public Scorer {
-
+	
   public: 
 	NDCGScorer();
 

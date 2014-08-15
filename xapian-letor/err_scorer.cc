@@ -28,7 +28,7 @@ double
 ERRScorer::score(const Xapian::RankList & rl){
 
 	//hard code for the a five-point scale, the 16 means 2^(5-1)
-	int MAX_LABEL = 16; 
+	int MAX_LABEL = 4;//16; 
 
 	std::vector<double> labels = get_labels(rl);
 	int length = labels.size();
@@ -48,7 +48,7 @@ ERRScorer::score(const Xapian::RankList & rl){
 
 		//for user 
 		for (int j=i-1; j>=0; --j){
-			temp_err *= (1-labels[j]);
+			temp_err *= (1.0-labels[j]);
 		}
 		err_score += temp_err;
 	}
