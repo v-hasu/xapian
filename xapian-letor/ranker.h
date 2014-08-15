@@ -40,14 +40,12 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker {
 
     std::vector<Xapian::RankList> traindata;
 
-    //Scorer scorer;
-
-    Scorer * scorer;
+  public:
 
     //the dufault max path length
     int MAXPATHLEN;
 
-  public:
+    Scorer * scorer;
 
     Ranker();
 

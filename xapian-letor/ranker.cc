@@ -26,6 +26,7 @@
 #include "ranklist.h"
 #include "ranker.h"
 #include "scorer.h"
+#include "map_scorer.h"
 #include "ndcg_scorer.h"
 #include "err_scorer.h"
 
@@ -51,9 +52,11 @@ Ranker::Ranker() {
 Ranker::Ranker(int metric_type) {
 	MAXPATHLEN = 200;
 	switch(metric_type) {
-        case 0: this -> scorer = new NDCGScorer;
+        case 0: this -> scorer = new MAPScorer;
                 break;
-		case 1: this -> scorer = new ERRScorer;
+        case 1: this -> scorer = new NDCGScorer;
+                break;
+		case 2: this -> scorer = new ERRScorer;
                 break;
         default: ;
     }
