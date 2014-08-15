@@ -15,25 +15,28 @@ namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT AdaRankRanker: public Ranker {
 
-    vector<double> parameters;
-    vector< double > queryWeights;
-    vector< vector< double > > weakRankerMatrix;
-    vector< pair< int, double > > weakRankerWeights;
+    int iterations;
+    vector< double > queryWeights;  //record the weight of each query
+    vector< vector< double > > weakRankerMatrix;    //ranker performance matrix
+    vector< vector< double > > perfPerModel;    //record the model's performance on each query
+    vector< pair< int, double > > weakRankerWeights;    //the linear combination of weakers of rankers
 
   public:
     AdaRankRanker();
 
     AdaRankRanker(int metric_type);
 
-    double getMeasure(Xapian::RankList ranklist);
+    AdaRankRanker(int metric_type, int new_iterations);
 
-    void initialize(vector<Xapian::RankList> ranklists, int feature_len, int ranklist_len);
+    double getMeasure(RankList ranklist, int feature_index);
 
-    void weakranker(int feature_len);
+    void initialize(vector<RankList> ranklists, int feature_len, int ranklist_len);
 
-    void reweightQuery();
+    void createWeakranker(int feature_len);
 
-    void batchLearning(vector<Xapian::RankList> ranklists, int feature_len, int ranklist_len);
+    void reweightQuery(int query_num);
+
+    void batchLearning(vector<RankList> ranklists, int feature_len, int ranklist_len);
 
     void train_model();
 
@@ -41,7 +44,7 @@ class XAPIAN_VISIBILITY_DEFAULT AdaRankRanker: public Ranker {
 
     void load_model_from_file(const char *parameters_file);
 
-    Xapian::RankList rank(Xapian::RankList & rl);
+    Xapian::RankList rank(RankList & rl);
 
 };
 

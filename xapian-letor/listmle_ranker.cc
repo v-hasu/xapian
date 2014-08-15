@@ -6,6 +6,10 @@
 #include "ranker.h"
 #include "ranklist.h"
 #include "listmle_ranker.h"
+#include "scorer.h"
+#include "map_scorer.h"
+#include "ndcg_scorer.h"
+#include "err_scorer.h"
 
 #include <algorithm>
 #include <cmath>
@@ -19,6 +23,25 @@ ListMLERanker::ListMLERanker(){
 }
 
 ListMLERanker::ListMLERanker(int metric_type):Ranker(metric_type) {
+}
+
+ListMLERanker::ListMLERanker(int metric_type, int new_iterations, double new_learning_rate){
+	
+	MAXPATHLEN = 200;
+
+	this->iterations = new_iterations;
+
+	this->learning_rate = new_learning_rate;
+
+	switch(metric_type) {
+        case 0: this -> scorer = new MAPScorer;
+                break;
+        case 1: this -> scorer = new NDCGScorer;
+                break;
+		case 2: this -> scorer = new ERRScorer;
+                break;
+        default: ;
+    }
 }
 
 static double
@@ -134,10 +157,7 @@ batchLearning(RankList ranklists, vector<double> & new_parameters, double learni
 void 
 ListMLERanker::train_model(){
 	
-	std::cout << "ListNet model begin to train..." << endl;
-    
-	int iterations = 100;
-	double learning_rate = 0.001;
+	std::cout << "ListMLE model begin to train..." << endl;
 
 	//get the training data
 	vector<Xapian::RankList> ranklists = get_traindata();
@@ -149,7 +169,7 @@ ListMLERanker::train_model(){
 		feature_cnt = ranklists[0].fvv[0].get_fcount();
 	}
 	else{
-		std::cout << "The training data in ListNet is NULL!" << endl;
+		std::cout << "The training data in ListMLE is NULL!" << endl;
 		exit(1);
 	}
 
@@ -160,11 +180,11 @@ ListMLERanker::train_model(){
 	}
 	
 	//iterations
-	for(int iter_num = 0; iter_num < iterations; ++iter_num){
+	for(int iter_num = 0; iter_num < this->iterations; ++iter_num){
 
 		for(int sample_num = 0; sample_num < ranklist_len; ++sample_num){
 			
-			batchLearning(ranklists[sample_num], new_parameters, learning_rate);
+			batchLearning(ranklists[sample_num], new_parameters, this->learning_rate);
 
 		}
 	}
@@ -178,7 +198,7 @@ ListMLERanker::save_model_to_file(){
     vector<double> trained_parameters = this->parameters;
 
 	ofstream parameters_file;
-    parameters_file.open("ListNet_parameters.txt");
+    parameters_file.open("ListMLE_parameters.txt");
 
     int parameters_size = trained_parameters.size();
 

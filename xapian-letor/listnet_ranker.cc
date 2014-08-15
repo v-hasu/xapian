@@ -6,6 +6,10 @@
 #include "ranker.h"
 #include "ranklist.h"
 #include "listnet_ranker.h"
+#include "scorer.h"
+#include "map_scorer.h"
+#include "ndcg_scorer.h"
+#include "err_scorer.h"
 
 #include <cmath>
 #include <stdlib.h>
@@ -19,6 +23,25 @@ ListNETRanker::ListNETRanker(){
 }
 
 ListNETRanker::ListNETRanker(int metric_type):Ranker(metric_type) {
+}
+
+ListNETRanker::ListNETRanker(int metric_type, int new_iterations, double new_learning_rate){
+	
+	MAXPATHLEN = 200;
+
+	this->iterations = new_iterations;
+
+	this->learning_rate = new_learning_rate;
+
+	switch(metric_type) {
+        case 0: this -> scorer = new MAPScorer;
+                break;
+        case 1: this -> scorer = new NDCGScorer;
+                break;
+		case 2: this -> scorer = new ERRScorer;
+                break;
+        default: ;
+    }
 }
 
 static double 
@@ -68,12 +91,13 @@ initializeProbability(vector<FeatureVector> feature_vectors, vector<double> new_
 	double expsum_y=0,expsum_z=0;
 
 	for(int i = 0; i < list_length; i++){
-		if (feature_vectors[i].get_label()==0){
-			expsum_y += exp(-1);
-		}
-		else{
-			expsum_y += exp(1);
-		}
+		// if (feature_vectors[i].get_label()==0){
+		// 	expsum_y += exp(-1);
+		// }
+		// else{
+		// 	expsum_y += exp(1);
+		// }
+		expsum_y += exp(feature_vectors[i].get_label());
 		expsum_z += exp(calculateInnerProduct(new_parameters,feature_vectors[i].get_fvals()));
 	}
 
@@ -81,18 +105,19 @@ initializeProbability(vector<FeatureVector> feature_vectors, vector<double> new_
 	//cout << "expsum_z: " << expsum_z << endl;
 
 	for(int i = 0; i < list_length; i++){
-		if (feature_vectors[i].get_label()==0){
-			prob_y.push_back(exp(-1)/expsum_y);
-			// cout << "exp(-1): " << exp(-1) << endl;
-			// cout << "expsum_y: " << expsum_y << endl;
-			// cout << "exp(-1)/expsum_y: " << exp(-1)/expsum_y << endl;
-		}
-		else{
-			prob_y.push_back(exp(1)/expsum_y);
-			// cout << "exp(1): " << exp(1) << endl;
-			// cout << "expsum_y: " << expsum_y << endl;
-			// cout << "exp(1)/expsum_y: " << exp(1)/expsum_y << endl;
-		}
+		// if (feature_vectors[i].get_label()==0){
+		// 	prob_y.push_back(exp(-1)/expsum_y);
+		// 	// cout << "exp(-1): " << exp(-1) << endl;
+		// 	// cout << "expsum_y: " << expsum_y << endl;
+		// 	// cout << "exp(-1)/expsum_y: " << exp(-1)/expsum_y << endl;
+		// }
+		// else{
+		// 	prob_y.push_back(exp(1)/expsum_y);
+		// 	// cout << "exp(1): " << exp(1) << endl;
+		// 	// cout << "expsum_y: " << expsum_y << endl;
+		// 	// cout << "exp(1)/expsum_y: " << exp(1)/expsum_y << endl;
+		// }
+		prob_y.push_back(exp(feature_vectors[i].get_label())/expsum_y);
 		prob_z.push_back(exp(calculateInnerProduct(new_parameters,feature_vectors[i].get_fvals()))/expsum_z);
 		// cout << "calculateInnerProduct(new_parameters,feature_vectors[i].get_fvals()): " << calculateInnerProduct(new_parameters,feature_vectors[i].get_fvals()) << endl;
 		// cout << "expsum_z: " << expsum_z << endl;
@@ -203,8 +228,6 @@ ListNETRanker::train_model(){
 	std::cout << "ListNet model begin to train..." << endl;
     
     //should be optimized, the parameter should could be setting in the main function
-	int iterations = 50;
-	double learning_rate = 0.005;
 
 	//get the training data
 	vector<Xapian::RankList> ranklists = get_traindata();
@@ -224,7 +247,7 @@ ListNETRanker::train_model(){
 	vector<double> new_parameters(feature_cnt, 0.0);//see FeatureManager::transform, the feature start from 1, so need to add 1, need 
 
 	//iterations
-	for(int iter_num = 0; iter_num < iterations; ++iter_num){
+	for(int iter_num = 0; iter_num < this->iterations; ++iter_num){
 
 		// cout << "*********************************" << endl;
 		// cout << "iterations: " << iter_num << endl;
@@ -234,7 +257,7 @@ ListNETRanker::train_model(){
 
 		for(int sample_num = 0; sample_num < ranklist_len; ++sample_num){
 
-			batchLearning(ranklists[sample_num], new_parameters, learning_rate);
+			batchLearning(ranklists[sample_num], new_parameters, this->learning_rate);
 
 		}
 	}

@@ -26,6 +26,7 @@
 #include "ranker.h"
 
 #include <map>
+#include <string>
 #include <numeric>
 
 using namespace std;
@@ -37,15 +38,18 @@ class Letor::Internal : public Xapian::Internal::intrusive_base {
     Ranker * ranker;
     Database letor_db;
     Query letor_query;
+
+    string training_set;
+    string test_set;
     //vector<Xapian::RankList> samples;
 
   public:
 
     //std::map<Xapian::docid, double>  letor_score(const Xapian::MSet & mset);
 
-    //std::vector<Xapian::docid>  letor_rank(const Xapian::MSet & mset);
+    // std::vector<Xapian::docid>  letor_rank(const Xapian::MSet & mset);
 
-    std::vector<string> letor_rank_from_letor4(const Xapian::MSet & mset);
+    void letor_rank_from_letor4();
 
 /*
     map<string, double> inverse_doc_freq(const Xapian::Database & db, const Xapian::Query & query);

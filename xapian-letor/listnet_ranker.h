@@ -17,10 +17,16 @@ class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
 
     vector<double> parameters;
 
+    int iterations;
+
+    double learning_rate;
+
   public:
     ListNETRanker();
 
     ListNETRanker(int metric_type);
+
+    ListNETRanker(int metric_type, int new_iterations, double new_learning_rate);
 
     void train_model();
 

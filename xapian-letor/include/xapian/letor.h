@@ -60,6 +60,10 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
     /// Specify the query. This will be used by the internal class.
     void set_query(const Xapian::Query & query);
 
+    void set_training_set(string tringing_set_path);
+
+    void set_test_set(string test_set_path);
+
     /** This method finds the frequency of the query terms in the specified documents. This method is a helping method and statistics gathered through
      *  this method are used in feature value calculation. It return the frequency of the terms of query in std::map<string, long int> form.
      *
@@ -153,11 +157,13 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *
      *  @return Letor score corresponding to each document in mset as map<docid, score> format.
      */
-    std::map<Xapian::docid, double> letor_score(const Xapian::MSet & mset);
+    // std::map<Xapian::docid, double> letor_score(const Xapian::MSet & mset);
 
     //std::vector<Xapian::docid>  letor_rank(const Xapian::MSet & mset);
 
     std::vector<string> letor_rank(const Xapian::MSet & mset);
+
+    void letor_rank();
 
     /** In this method the model is learnt and stored in 'model.txt' file using training file 'train.txt'. It is required that libsvm is
      *  installed in the system. The SVM model is learnt using libsvm.
@@ -201,7 +207,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
 
     void prepare_training_file_listwise(const std::string & query_file, int num_features);
     
-    void create_ranker(int ranker_type, int metric_type);
+    void create_ranker(int ranker_type, int metric_type, int iteration, double learning_rate);
     
 //    void test(Xapian::RankList rl);
 };
