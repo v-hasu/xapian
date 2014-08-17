@@ -1,6 +1,7 @@
 /* ranker.h: The abstract ranker file.
  *
  * Copyright (C) 2012 Parth Gupta
+ * Copyright (C) 2014 Hanxiao Sun
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -57,8 +58,6 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker {
 
     void set_training_data(vector<Xapian::RankList> training_data1);
 
-    //Xapian::Scorer get_scorer();
-
     std::string get_cwd(); 
 
     virtual void train_model();
@@ -69,7 +68,7 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker {
 
     virtual Xapian::RankList rank( Xapian::RankList & rl);
 
-    std::vector<Xapian::docid> aggregate(std::vector<Xapian::RankList> rls);
+    Xapian::RankList aggregate(std::vector<Xapian::RankList> rls);
 
 };
 

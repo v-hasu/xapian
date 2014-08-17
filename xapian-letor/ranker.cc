@@ -1,6 +1,7 @@
 /* ranker.cc: The abstract ranker file.
  *
  * Copyright (C) 2012 Parth Gupta
+ * Copyright (C) 2014 Hanxiao Sun
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,17 +34,12 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <cmath>
 #include <utility>
 #include <stdlib.h>
 
 using namespace std;
 using namespace Xapian;
-
-struct scoreComparer {
-    bool operator()(const pair<Xapian::docid, int>& first_pair, const pair<Xapian::docid, int>& second_pair) const {
-        return first_pair.second > second_pair.second;
-    }
-};
 
 Ranker::Ranker() {
 	MAXPATHLEN = 200;
@@ -77,11 +73,6 @@ Ranker::set_training_data(vector<Xapian::RankList> training_data1) {
     this->traindata = training_data1;
 }
 
-/*Xapian::Scorer 
-Ranker::get_scorer(){
-    return this->scorer;
-}*/
-
 //get current working directory
 std::string 
 Ranker::get_cwd() {
@@ -104,27 +95,45 @@ Ranker::load_model_from_file(const std::string & model_file) {
 Xapian::RankList
 Ranker::rank(Xapian::RankList & rl) {
 }
-/*
-static map<Xapian::docid,int>
+
+static map<string,double>
 transform(Xapian::RankList &rl){
-    map<Xapian::docid,int> borda_score;
+
+    map<string,double> blending_score;
     std::vector<FeatureVector> fvv = rl.get_fvv();
     int ranking_size = fvv.size();
-    for(int i = 0; i < ranking_size; ++i){
-        //the score definition is the fisrt doc get the maximum score, which is just the size of the doc set.
-        borda_score[fvv[i].get_did()] = ranking_size-i;
+    double deviation = 0.0;
+    double mean = 0.0;
+    double std = 0.0;
+    double sumX = 0.0;
+    double sumX2 = 0.0;
+
+    for(int i =0 ; i < ranking_size; ++i){
+        double score = fvv[i].get_score();
+        sumX += score;
+        sumX2 += score*score;
     }
-    return borda_score;
+    mean = (sumX/(double)ranking_size);
+    deviation = (sumX2/(double)ranking_size) - (sumX/(double)ranking_size) * (sumX/(double)ranking_size);
+    std = sqrt(deviation);
+
+    for(double i = 0.0; i < ranking_size; ++i){
+
+        double temp = fvv[i].get_score();
+        blending_score[fvv[i].get_did()] = (temp-mean)/std;//1.0/(i+1.0);//ranking_size - i;
+
+    }
+    return blending_score;
 }
 
 static void
-combineMap(map<Xapian::docid,int> base, map<Xapian::docid,int> & new_add){
+combineMap(map<string,double> & base, map<string,double> & new_add){
     if(base.size()!=new_add.size()){
         std::cout<<"the size of the ranking between each rankers are not the same"<<endl;
         exit(2);
     }
     else{
-        for(map<Xapian::docid,int>::iterator iter = new_add.begin(); iter != new_add.end(); ++iter){
+        for(map<string,double>::iterator iter = new_add.begin(); iter != new_add.end(); ++iter){
             if(base.count(iter->first)!=0){
                 base[iter->first] += new_add[iter->first];
             }
@@ -136,38 +145,41 @@ combineMap(map<Xapian::docid,int> base, map<Xapian::docid,int> & new_add){
     }
 }
 
-//use borda-fuse
-std::vector<Xapian::docid>
-Ranker::aggregate(std::vector<Xapian::RankList> rls){
-    
-    vector<Xapian::docid> ranking_result;
+//input: several ranklist ranked by several rankers
+//output: the single fused ranking esult 
+Xapian::RankList
+Ranker::aggregate(vector<Xapian::RankList> rls){
 
     int ranker_num = rls.size();
-    if (1 == ranker_num){
-        std::vector<FeatureVector> fvv = rls[0].get_fvv();
-        for(std::vector<FeatureVector>::iterator iter = fvv.begin(); iter != fvv.end(); ++iter)
-            ranking_result.push_back(iter->did);
-    }
-    else if (0 == ranker_num){
+
+    if (0 == ranker_num){
         std::cout<<"No ranklist in rls in ranker.cc!"<<endl;
         exit(2);
-    }
-    else{
-        map<Xapian::docid,int> base = transform(rls[0]);
+
+    } else if(1 == ranker_num){
+        return rls[0];
+
+    } else{
+
+        map<string,double> base = transform(rls[0]);
         for (int i = 1; i < ranker_num; ++i){
-            map<Xapian::docid,int> new_add = transform(rls[i]);
+            map<string,double> new_add = transform(rls[i]);
             combineMap(base,new_add);
         }
 
-        vector<pair<Xapian::docid, int> > aggregate_score_vec(base.begin(), base.end());  
-        sort(aggregate_score_vec.begin(), aggregate_score_vec.end(), scoreComparer());
-
-        for(vector<pair<Xapian::docid, int> >::iterator iter = aggregate_score_vec.begin(); iter != aggregate_score_vec.begin(); ++iter){
-            ranking_result.push_back(iter->first);
+        vector<FeatureVector> fvv = rls[0].get_fvv();
+        int fvv_size = fvv.size();
+        string did;
+        double borda_fuse_score;
+        for(int i = 0; i < fvv_size; ++i){
+            did = fvv[i].get_did();
+            borda_fuse_score = base[did];
+            fvv[i].set_score(borda_fuse_score);
         }
+        rls[0].set_fvv(fvv);
+        rls[0].sort_by_score();
 
+        return rls[0];
     }
 
-    return ranking_result;
-
-}*/
+}
