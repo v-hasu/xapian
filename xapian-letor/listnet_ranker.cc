@@ -1,3 +1,23 @@
+/* svmranker.cc The listnet algorithm.
+ * 
+ * Copyright (C) 2014 Hanxiao Sun
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ */
+
 #include <xapian.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
@@ -91,43 +111,15 @@ initializeProbability(vector<FeatureVector> feature_vectors, vector<double> new_
 	double expsum_y=0,expsum_z=0;
 
 	for(int i = 0; i < list_length; i++){
-		// if (feature_vectors[i].get_label()==0){
-		// 	expsum_y += exp(-1);
-		// }
-		// else{
-		// 	expsum_y += exp(1);
-		// }
 		expsum_y += exp(feature_vectors[i].get_label());
 		expsum_z += exp(calculateInnerProduct(new_parameters,feature_vectors[i].get_fvals()));
 	}
 
-	//cout << "expsum_y: " << expsum_y << endl;
-	//cout << "expsum_z: " << expsum_z << endl;
-
 	for(int i = 0; i < list_length; i++){
-		// if (feature_vectors[i].get_label()==0){
-		// 	prob_y.push_back(exp(-1)/expsum_y);
-		// 	// cout << "exp(-1): " << exp(-1) << endl;
-		// 	// cout << "expsum_y: " << expsum_y << endl;
-		// 	// cout << "exp(-1)/expsum_y: " << exp(-1)/expsum_y << endl;
-		// }
-		// else{
-		// 	prob_y.push_back(exp(1)/expsum_y);
-		// 	// cout << "exp(1): " << exp(1) << endl;
-		// 	// cout << "expsum_y: " << expsum_y << endl;
-		// 	// cout << "exp(1)/expsum_y: " << exp(1)/expsum_y << endl;
-		// }
 		prob_y.push_back(exp(feature_vectors[i].get_label())/expsum_y);
 		prob_z.push_back(exp(calculateInnerProduct(new_parameters,feature_vectors[i].get_fvals()))/expsum_z);
-		// cout << "calculateInnerProduct(new_parameters,feature_vectors[i].get_fvals()): " << calculateInnerProduct(new_parameters,feature_vectors[i].get_fvals()) << endl;
-		// cout << "expsum_z: " << expsum_z << endl;
-		// cout << "exp(calculateInnerProduct(new_parameters,feature_vectors[i].get_fvals()))/expsum_z: " << exp(calculateInnerProduct(new_parameters,feature_vectors[i].get_fvals()))/expsum_z << endl;
-	}
 
-	// for(int i = 0; i < list_length; i++){
-	// 	cout << "prob_y[" << i << "]: " << prob_y[i] << endl;
-	// 	cout << "prob_z[" << i << "]: " << prob_z[i] << endl;
-	// }
+	}
 
 	vector< vector<double> > prob;
 	prob.push_back(prob_y);
@@ -159,16 +151,10 @@ calculateGradient(vector<FeatureVector> feature_vectors, vector< vector<double> 
 			double first_term = - prob_y[i] * iter->second;//the feature start from 1, while the parameters strat from 0
 
 			gradient[iter->first] += first_term;//not i
-			//cout << "prob_y[i]: " << prob_y[i] << endl;
 			
-
 			//the second term in the serivation, the equation (6) in the paper
 			double second_term = prob_z[i] * iter->second;//the feature start from 1, while the parameters strat from 0
 			gradient[iter->first] += second_term;
-			//cout << "prob_z[i]: " << prob_z[i] << endl;
-			// cout << "first_term: " << first_term << endl;
-			// cout << "second_term: " << second_term << endl;
-			// cout << "gradient["<< iter->first << "]: " << gradient[iter->first] << endl;
 
 		}
 	}
@@ -187,19 +173,8 @@ updateParameters(vector<double> & new_parameters, vector<double> gradient, doubl
 	else{
 		for (int i = 0; i < num; i++){
 
-			// if (i == 45){
-			// 	cout << "before**********************" << endl;
-			// 	cout << "new_parameters[" << i << "]: " << new_parameters[i]<< endl;
-			// 	cout << "gradient[" << i << "]: " << gradient[i]<< endl;
-			// }
-
 			double temp = new_parameters[i];
-			new_parameters[i] = temp - (gradient[i] * learning_rate);
-
-			// if (i == 45){
-			// 	cout << "after***********************" << endl;
-			// 	cout << "new_parameters[" << i << "]: " << new_parameters[i]<< endl;
-			// }		
+			new_parameters[i] = temp - (gradient[i] * learning_rate);	
 		}
 	}
 }
@@ -217,8 +192,6 @@ batchLearning(RankList & ranklists, vector<double> & new_parameters, double lear
 
 	//update parameters: w = w - gradient * learningRate
 	updateParameters(new_parameters, gradient, learning_rate);
-
-	//cout << "crossEntropy" << crossEntropy(prob[0], prob[1]) << endl;
 
 }
 
@@ -249,12 +222,6 @@ ListNETRanker::train_model(){
 	//iterations
 	for(int iter_num = 0; iter_num < this->iterations; ++iter_num){
 
-		// cout << "*********************************" << endl;
-		// cout << "iterations: " << iter_num << endl;
-		// cout << "*********************************" << endl;
-
-		// batchLearning(ranklists[1], new_parameters, learning_rate);
-
 		for(int sample_num = 0; sample_num < ranklist_len; ++sample_num){
 
 			batchLearning(ranklists[sample_num], new_parameters, this->learning_rate);
@@ -264,12 +231,6 @@ ListNETRanker::train_model(){
 
 	this->parameters = new_parameters;
 
-	// int parameters_size = new_parameters.size();
-
- //    for (int i = 0; i < parameters_size; ++i){
- //    	cout << "this->parameters[" << i << "]: " << this->parameters[i] << endl;
- //    	cout << "new_parameters[" << i << "]: " << new_parameters[i] << endl;
- //    }
 }
 
 void 
@@ -313,7 +274,6 @@ ListNETRanker::load_model_from_file(const char *parameters_file){
 Xapian::RankList 
 ListNETRanker::rank(Xapian::RankList & ranklist){
 
-	//Xapian::Scorer svm_scorer = get_scorer();
 
     std::vector<Xapian::FeatureVector> testfvv = ranklist.get_fvv();
     int testfvvsize = testfvv.size();
@@ -321,26 +281,23 @@ ListNETRanker::rank(Xapian::RankList & ranklist){
     std::vector<double> new_parameters = this->parameters;
     int parameters_size = new_parameters.size();
 
-    // for (int i = 0; i < parameters_size; ++i){
-    // 	cout << "new_parameters[" << i << "]: " << new_parameters[i] << endl;
-    // }
-
     for (int i = 0; i <testfvvsize; ++i){
 
     	double listnet_score = 0;
 
         map <int,double> fvals = testfvv[i].get_fvals();
-        int fvalsize = fvals.size();
+        int fval_size = fvals.size();
 
-        if (fvalsize != parameters_size){//fval start from 1, while the parameters start from 1
-        	std::cout << "number of fvals don't match the number of ListNet parameters" << endl;
+        if (fval_size != parameters_size){//fval start from 1, while the parameters start from 1
+        	cout << "number of fvals don't match the number of ListNet parameters" << endl;
+        	cout << "the size of parameters: " << parameters_size << endl;
+			cout << "the size of fvals: " << fval_size << endl;
+
         }
 
-        for(int j = 0; j < fvalsize; ++j){                 //fvals starts from 1, not 0      
+        for(int j = 0; j < fval_size; ++j){                 //fvals starts from 1, not 0      
         	listnet_score += fvals[j] * new_parameters[j];   
-        	// cout << "fvals[" << j << "]: " << fvals[j] << endl;
-        	// cout << "new_parameters[" << j << "]: " << new_parameters[j] << endl;
-        	// cout << "listnet_score: " << listnet_score << endl;
+
         } 
 
         testfvv[i].set_score(listnet_score);
@@ -349,11 +306,6 @@ ListNETRanker::rank(Xapian::RankList & ranklist){
 
     ranklist.set_fvv(testfvv);
     ranklist.sort_by_score();
-/*      
-    std::vector<double> scores;  
-    std::cout << "NDCG: " << svm_scorer.ndcg_scorer(ranklist) << endl;
-    std::cout << "ERR: " << svm_scorer.err_scorer(ranklist) << endl;
-*/
 
     return ranklist;
 }

@@ -1,6 +1,7 @@
-/* svmranker.h: The svmranker file.
+/* svm_ranker.h: The svm_ranker file.
  *
  * Copyright (C) 2012 Parth Gupta
+ * Copyright (C) 2014 Hanxiao Sun
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

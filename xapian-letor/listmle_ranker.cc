@@ -1,3 +1,23 @@
+/* svmranker.cc The listmle algorithm.
+ * 
+ * Copyright (C) 2014 Hanxiao Sun
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ */
+
 #include <xapian.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
@@ -52,7 +72,6 @@ calculateInnerProduct(vector<double> parameters, map<int,double> feature_sets){
 	for (map<int,double>::iterator iter = feature_sets.begin(); iter != feature_sets.end(); ++iter){
 		inner_product += parameters[iter->first] * iter->second;//the feature start from 1, while the parameters strat from 0
 	}
-
 	return inner_product;
 }
 
@@ -107,9 +126,7 @@ calculateGradient(vector<FeatureVector> sorted_feature_vectors, vector<double> n
 		for (map<int,double>::iterator iter = feature_sets.begin(); iter != feature_sets.end(); ++iter){
 
 			gradient[iter->first] += iter->second * exponents[i]/ expsum;
-
 		}
-		
 	}
 
 	map<int,double> first_place_in_ground_truth_feature_sets = sorted_feature_vectors[0].get_fvals();
@@ -117,7 +134,6 @@ calculateGradient(vector<FeatureVector> sorted_feature_vectors, vector<double> n
 	for (map<int,double>::iterator iter = first_place_in_ground_truth_feature_sets.begin(); iter != first_place_in_ground_truth_feature_sets.end(); ++iter){
 
 			gradient[iter->first] -= iter->second;
-
 		}
 
 	return gradient;
@@ -127,7 +143,7 @@ static void
 updateParameters(vector<double> & new_parameters, vector<double> gradient, double learning_rate){
 	int num = new_parameters.size();
 	if (num != gradient.size()){
-		cout << "the size between base new_parameters and gradient is not match in listnet::updateParameters" << endl;
+		cout << "the size between base new_parameters and gradient is not match in listmle::updateParameters" << endl;
 		cout << "the size of new_parameters: " << num << endl;
 		cout << "the size of gradient: " << gradient.size() << endl;
 	}
@@ -185,7 +201,6 @@ ListMLERanker::train_model(){
 		for(int sample_num = 0; sample_num < ranklist_len; ++sample_num){
 			
 			batchLearning(ranklists[sample_num], new_parameters, this->learning_rate);
-
 		}
 	}
 
@@ -240,10 +255,6 @@ ListMLERanker::rank(Xapian::RankList & ranklist){
     std::vector<double> new_parameters = this->parameters;
     int parameters_size = new_parameters.size();
 
-    // for (int i = 0; i < parameters_size; ++i){
-    // 	cout << "new_parameters[" << i << "]: " << new_parameters[i] << endl;
-    // }
-
     for (int i = 0; i <testfvvsize; ++i){
 
     	double listmle_score = 0;
@@ -252,29 +263,20 @@ ListMLERanker::rank(Xapian::RankList & ranklist){
         int fval_size = fvals.size();
 
         if (fval_size != parameters_size){//fval start from 1, while the parameters start from 1
-        	cout << "number of fvals don't match the number of ListNet parameters" << endl;
+        	cout << "number of fvals don't match the number of Listmle parameters" << endl;
         	cout << "the size of parameters: " << parameters_size << endl;
 			cout << "the size of fvals: " << fval_size << endl;
         }
 
         for(int j = 0; j < fval_size; ++j){                 //fvals starts from 1, not 0      
         	listmle_score += fvals[j] * new_parameters[j];   
-        	// cout << "fvals[" << j << "]: " << fvals[j] << endl;
-        	// cout << "new_parameters[" << j << "]: " << new_parameters[j] << endl;
-        	// cout << "listnet_score: " << listnet_score << endl;
         } 
 
         testfvv[i].set_score(listmle_score);
-
     }
 
     ranklist.set_fvv(testfvv);
     ranklist.sort_by_score();
-/*      
-    std::vector<double> scores;  
-    std::cout << "NDCG: " << svm_scorer.ndcg_scorer(ranklist) << endl;
-    std::cout << "ERR: " << svm_scorer.err_scorer(ranklist) << endl;
-*/
 
     return ranklist;
 }

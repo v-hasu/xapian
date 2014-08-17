@@ -1,3 +1,23 @@
+/* ndcg_scorer.cc The NDCG metric.
+ * 
+ * Copyright (C) 2014 Hanxiao Sun
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ */
+
 #include <xapian.h>
 #include <xapian/intrusive_ptr.h>           
 #include <xapian/types.h>
@@ -32,7 +52,7 @@ get_dcg(const std::vector<double> labels, int topN){
 		if (position < labels_size){
 			current_score = labels[position];
 		} else {
-			current_score = 0;
+			current_score = 0.0;
 		}
 
 		if (1 == position){
@@ -65,8 +85,8 @@ NDCGScorer::score(const Xapian::RankList & rl){
 
 	vector<double> iDCG = get_dcg(labels, TopN);
 
-	if (0 == iDCG[TopN-1]){
-		return 0;
+	if (0.0 == iDCG[TopN-1]){
+		return 0.0;
 	} else{
 		return DCG[TopN-1]/iDCG[TopN-1];
 	}

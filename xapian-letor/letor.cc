@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2011 Parth Gupta
  * Copyright (C) 2012 Olly Betts
+ * Copyright (C) 2014 Hanxiao Sun
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -49,7 +50,6 @@ Letor::Letor() : internal(new Letor::Internal) { }
 
 Letor::~Letor() { }
 
-
 void
 Letor::set_database(const Xapian::Database & db) {
     internal->letor_db = db;
@@ -70,27 +70,10 @@ Letor::set_test_set(string test_set_path) {
     internal->test_set = test_set_path;
 }
 
-/*
-map<Xapian::docid, double>
-Letor::letor_score(const Xapian::MSet & mset) {
-    return internal->letor_score(mset);
-}*/
-
-// std::vector<Xapian::docid> 
-// Letor::letor_rank(const Xapian::MSet & mset) {
-//     return internal->letor_rank(mset);
-// }
-
-// std::vector<string> 
-// Letor::letor_rank(const Xapian::MSet & mset) {
-//     return internal->letor_rank(mset);
-// }
-
 void
 Letor::letor_rank() {
     internal->letor_rank_from_letor4();
 }
-
 
 void
 Letor::letor_learn_model() {
@@ -103,23 +86,31 @@ Letor::prepare_training_file(const string & query_file, const string & qrel_file
 }
 
 void
-Letor::prepare_training_file_listwise(const string & query_file, int num_features) {
-    internal->prepare_training_file_listwise(query_file, num_features);
-}
-
-void
 Letor::create_ranker(int ranker_type, int metric_type, int iterations, double learning_rate) {
     switch(ranker_type) {
-        case 0: internal->ranker = new SVMRanker(metric_type);
+        case 0: 
+                internal->rankers.push_back(new SVMRanker(metric_type));
                 cout << "SVMRanker created!" <<endl;
                 break;
-        case 1: internal->ranker = new ListNETRanker(metric_type, iterations, learning_rate);
+        case 1: 
+                internal->rankers.push_back(new ListNETRanker(metric_type, iterations, learning_rate));
                 cout << "ListNETRanker created!" <<endl;
                 break;
-        case 2: internal->ranker = new ListMLERanker(metric_type, iterations, learning_rate);
+        case 2: 
+                internal->rankers.push_back(new ListMLERanker(metric_type, iterations, learning_rate));
                 cout << "ListMLERanker created!" <<endl;
                 break;
-        case 3: internal->ranker = new AdaRankRanker(metric_type, iterations);
+        case 3: 
+                internal->rankers.push_back(new AdaRankRanker(metric_type, iterations));
+                cout << "AdaRankRanker created!" <<endl;
+                break;
+        case 4: 
+                cout << "Hybird ranking model!" <<endl;
+                internal->rankers.push_back(new ListNETRanker(metric_type, iterations, learning_rate));
+                cout << "ListNETRanker created!" <<endl;
+                internal->rankers.push_back(new ListMLERanker(metric_type, iterations, learning_rate));
+                cout << "ListMLERanker created!" <<endl;
+                internal->rankers.push_back(new AdaRankRanker(metric_type, iterations));
                 cout << "AdaRankRanker created!" <<endl;
                 break;
         default:cout<<"Please specify proper ranker.";

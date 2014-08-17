@@ -1,6 +1,7 @@
 /* featurevector.cc: The file responsible for transforming the document into the feature space.
  *
  * Copyright (C) 2012 Parth Gupta
+ * Copyright (C) 2014 Hanxiao Sun
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -169,14 +170,14 @@ FeatureVector::set_score(double score1) {
 
 int
 FeatureVector::get_nonzero_num(){
+
     int nonzero = 0;
-    int fvalsize=this->fvals.size();
-    for(int i = 1; i <= fvalsize; ++i){
-        if(fvals[i] != 0){
-            //cout << "index: "<< i << "fvals in fv: " <<fvals[i]<< endl;
+
+    for (map<int, double>::iterator iter = fvals.begin(); iter != fvals.end(); ++iter){
+        if(iter->second != 0.0){
             nonzero++;
         } 
     }
-    //cout << "nonzero: "<< nonzero <<endl;
+
     return nonzero;
 }

@@ -1,6 +1,7 @@
 /* svmranker.cc The RankerSVM algorithm.
  * 
  * Copyright (C) 2012 Parth Gupta
+ * Copyright (C) 2014 Hanxiao Sun
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,11 +46,6 @@ struct svm_parameter param;
 struct svm_problem prob;
 struct svm_model * trainmodel;
 struct svm_node * test;
-
-/*static string get_cwd() {
-    char temp[200];
-    return (getcwd(temp, 200) ? std::string(temp) : std::string());
-}*/
 
 SVMRanker::SVMRanker() {
 }
@@ -101,52 +97,35 @@ SVMRanker::train_model() {
             
             int fvflag = 0;
             map <int,double> trainfvals = trainfvv[j].get_fvals();
-            int fvalsize = trainfvals.size();
-            for(int k = 1; k <= fvalsize; ++k){                  //feature vector, fv's index start from 1 so we need =
-                double fvalue = trainfvals[k];
-                if(fvalue != 0){
-                    prob.x[flag][fvflag].index = k;
+
+            for (map<int, double>::iterator iter = trainfvals.begin(); iter != trainfvals.end(); ++iter){
+                double fvalue = iter->second; 
+                if(fvalue != 0.0){                                          //attention!! in feature vector, the fv's index start from 0,but in LibSVM, the feature start from 1
+                    prob.x[flag][fvflag].index = (iter->first)+1;           //the feature range in trainfvals is [0,fvalsize-1], but we need [0, fvalsize] in prob.x.index in LibSVM.
                     prob.x[flag][fvflag].value = fvalue;
-                    //cout << "fvalue: " << fvalue <<endl;
+
                     fvflag++;
                 }
             }
             prob.x[flag][fvflag].index = -1;
             prob.x[flag][fvflag].value = -1;
-            //cout << "fvflag: " << fvflag <<endl<<endl;
 
             prob.y[flag] = trainfvv[j].get_label();
             flag++;
         }
     }
-    //cout << "flag: " << flag <<endl;
 
-    //printf("Learning the model..");
-    //string input_file_name;
     string model_file_name;
     const char *error_msg;
 
-    //input_file_name = get_cwd().append("/train.txt");
-    //model_file_name = get_cwd().append("/model.txt");
-
-    //read_problem(input_file_name.c_str());
     error_msg = svm_check_parameter(&prob, &param);
     if (error_msg) {
         fprintf(stderr, "svm_check_parameter failed: %s\n", error_msg);
-        //exit(1);
+        exit(1);
     }
 
     trainmodel = svm_train(&prob, &param);
     this->model = trainmodel;
-    /*
-    if (svm_save_model(model_file_name.c_str(), trainmodel)) {
-        fprintf(stderr, "can't save model to file %s\n", model_file_name.c_str());
-        exit(1);
-    }
-    else{
-        cout << "svm model saved successfully" << endl;
-    }
-    */
 }
 
 void 
@@ -174,7 +153,6 @@ SVMRanker::load_model_from_file(const std::string & model_file){
 Xapian::RankList
 SVMRanker::rank(Xapian::RankList & ranklist){
 
-    //Xapian::Scorer svm_scorer = get_scorer();
     std::vector<Xapian::FeatureVector> testfvv = ranklist.get_fvv();
 
     int testnonzero;
@@ -184,18 +162,18 @@ SVMRanker::rank(Xapian::RankList & ranklist){
     for (int i = 0; i <testfvvsize; ++i){
         
         testnonzero = testfvv[i].get_nonzero_num();
-        test = new svm_node [testnonzero+1];
+        test = new svm_node [testnonzero+1];                //need one more space for the last default -1
 
         int flag = 0;
-        map <int,double> fvals = testfvv[i].get_fvals();
-        int fvalsize = fvals.size();
-        for(int j = 1; j <= fvalsize; ++j){                 //fvals starts from 1, not 0             
-            if(fvals[j] != 0){
-                test[flag].index = j;
-                test[flag].value = fvals[j];
+        map <int,double> testfvals = testfvv[i].get_fvals();
+        for (map<int, double>::iterator iter = testfvals.begin(); iter != testfvals.end(); ++iter){
+            double fvalue = iter->second; 
+            if(fvalue != 0.0){                                          //attention!! in feature vector, the fv's index start from 0,but in LibSVM, the feature start from 1
+                test[flag].index = (iter->first)+1;                     //the feature range in testfvals is [0,fvalsize-1], but we need [0, fvalsize] in prob.x.index in LibSVM.
+                test[flag].value = fvalue;
                 flag++;
             }
-        } 
+        }
 
         test[flag].index = -1;
         test[flag].value = -1;
@@ -208,12 +186,6 @@ SVMRanker::rank(Xapian::RankList & ranklist){
 
     ranklist.set_fvv(testfvv);
     ranklist.sort_by_score();
-/*      
-    std::vector<double> scores;  
-    std::cout << "NDCG: " << svm_scorer.ndcg_scorer(ranklist) << endl;
-    std::cout << "ERR: " << svm_scorer.err_scorer(ranklist) << endl;
-
-    std::cout << "ERR: " << get_score(ranklist) << endl;
-*/
+    
     return ranklist;
 }
