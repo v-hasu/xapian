@@ -31,9 +31,7 @@
 
 using namespace std;
 
-
 using namespace Xapian;
-
 
 EvalMetric::EvalMetric() {
 }
