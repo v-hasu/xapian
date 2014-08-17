@@ -46,14 +46,14 @@ static void show_usage() {
 "  -a, --training_set=TRAINING_SET_PATH  training_set path\n"
 "  -e, --test_set=TEST_SET_PATH  test_set path\n"
 "  -r, --ranker=RANKER  specify the ranking algorithm\n"
-"                       Supported algorithm: (default=ListNet)\n"
+"                       Supported algorithm: (default=Adarank)\n"
 "                       0:svmrank\n"
 "                       1:ListNet\n"
 "                       2:ListMLE\n"
 "                       3:Adarank\n"
-"                       4:borda-fuse (ranking aggregation)\n"
+"                       4:Hybird model\n"
 "  -e, --metric=METRIC  specify the metric to evaluate the ranking result\n"
-"                       Supported metric: MAP, NGCG, ERR(default=MAP)\n"
+"                       Supported metric: MAP, NGCG, ERR(default=NGCG)\n"
 "                       0:MAP\n"
 "                       1:NDCG\n"
 "                       2:ERR\n"
@@ -117,8 +117,8 @@ main(int argc, char **argv){
 
     string training_set_path;
     string test_set_path;
-    int ranker_type = 1;
-    int metric_type = 0;
+    int ranker_type = 3;
+    int metric_type = 1;
     int iterations = 25;
     double learning_rate = 0.01;
 
