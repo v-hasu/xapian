@@ -53,7 +53,7 @@ static void show_usage() {
 "                       3:Adarank\n"
 "                       4:Hybird model\n"
 "  -e, --metric=METRIC  specify the metric to evaluate the ranking result\n"
-"                       Supported metric: MAP, NGCG, ERR(default=NGCG)\n"
+"                       Supported metric: MAP, NGCG, ERR(default=NDCG)\n"
 "                       0:MAP\n"
 "                       1:NDCG\n"
 "                       2:ERR\n"
